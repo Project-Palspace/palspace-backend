@@ -8,10 +8,10 @@ services:
     environment:
       # Mailer SMTP settings
       - SMTP_NAME="Palspace Dev"
-      - SMTP_EMAIL=""
-      - SMTP_PASSWORD=""
-      - SMTP_HOST=""
-      - SMTP_PORT=""
+      - SMTP_EMAIL="local@palspace.dev"
+      - SMTP_PASSWORD="dev"
+      - SMTP_HOST="mail"
+      - SMTP_PORT="1025"
       - SMTP_SSL="TRUE"
       
       # API host settings
@@ -46,6 +46,23 @@ services:
       main:
         aliases:
           - obj
+
+  mail:
+    platform: linux/x86_64
+    image: mailhog/mailhog
+    hostname: "mail.palspace.dev"
+    container_name: palspace-smtp
+    logging:
+      driver: 'none'
+    environment:
+      - MH_HOSTNAME=mail.palspace.dev
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      main:
+        aliases:
+          - mail
 
   ingress:
     image: 'jc21/nginx-proxy-manager:latest'

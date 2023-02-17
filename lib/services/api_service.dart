@@ -1,7 +1,7 @@
 import 'package:dotenv/dotenv.dart';
 import 'package:palspace_backend/middleware/authentication.dart';
 import 'package:palspace_backend/routes/debug_router.dart';
-import 'package:palspace_backend/routes/users_router.dart';
+import 'package:palspace_backend/routes/user_router.dart';
 import 'package:palspace_backend/services/service_collection.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
@@ -16,7 +16,7 @@ class ApiService {
     final app = Router();
     final dotEnv = serviceCollection.get<DotEnv>();
 
-    app.mount('/user/', UsersRouter(serviceCollection).router);
+    app.mount('/user/', UserRouter(serviceCollection).router);
     app.mount('/debug/', await authenticatedRouter(DebugRouter(serviceCollection).router));
     app.mount('/debug-noauth/', DebugRouter(serviceCollection).router);
 
@@ -25,4 +25,7 @@ class ApiService {
   }
 
   authenticatedRouter(Router router) async => Pipeline().addMiddleware(await authenticateMiddleware(serviceCollection)).addHandler(router);
+}
+
+class AuthenticatedUsersRouter {
 }

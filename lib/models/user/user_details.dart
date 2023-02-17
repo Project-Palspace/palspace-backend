@@ -10,4 +10,15 @@ class UserDetails {
   String? currentCity;
   DateTime? birthDate;
   String? bio;
+
+  dynamic toJson() {
+    return {
+      'firstName': firstName,
+      'lastName': lastName,
+      'homeCity': homeCity,
+      'currentCity': currentCity,
+      'birthDate': birthDate?.toIso8601String(),
+      'bio': bio,
+    };
+  }
 }

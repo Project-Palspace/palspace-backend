@@ -10,6 +10,7 @@
     | Object Storage (minio) | https://obj.palspace.dev                      |
     | Minio web portal       | https://obj-portal.palspace.dev               |
     | Nginx proxy manager    | https://proxy.palspace.dev                    |
+    | Mailhog Web UI         | https://mail.palspace.dev                     |
     |------------------------------------------------------------------------|
     | NAME                   | Credentials (user:pass)                       |
     |------------------------|-----------------------------------------------|

@@ -1,6 +1,10 @@
 import 'package:isar/isar.dart';
+import 'package:palspace_backend/enums/trait.dart';
+import 'package:palspace_backend/exceptions/email_not_verified_exception.dart';
 import 'package:palspace_backend/models/user/user.dart';
+import 'package:palspace_backend/models/user/user_verify.dart';
 import 'package:palspace_backend/routes/models/login_request.dart';
+import 'package:palspace_backend/services/mail_service.dart';
 import 'package:palspace_backend/services/service_collection.dart';
 import 'package:crypt/crypt.dart';
 import 'package:palspace_backend/utilities/utilities.dart';
@@ -21,7 +25,6 @@ class LoginSession {
 
   dynamic toJson() {
     return {
-      'id': id,
       'token': token,
       'refreshToken': refreshToken,
       'expiresAt': expiresAt?.toIso8601String(),
@@ -32,10 +35,39 @@ class LoginSession {
   static Future<LoginSession?> fromLoginRequest(LoginRequest loginRequest, ServiceCollection serviceCollection) async {
     final isar = serviceCollection.get<Isar>();
     final user = await isar.users.where().emailEqualTo(loginRequest.email).findFirst();
-    final crypt = Crypt.sha256(loginRequest.password!, salt: user!.salt);
+
+    if (user == null) {
+      return null;
+    }
+
+    final crypt = Crypt.sha256(loginRequest.password!, salt: user.salt);
 
     if (crypt.hash != user.hashedPassword) {
       return null;
+    }
+
+    // Check if user has EMAIL_VERIFIED trait
+    if (!user.hasTrait(Trait.EMAIL_VERIFIED)) {
+      // Check if user still has valid verify token
+      final userVerify = user.verifyToken.value;
+
+      if (userVerify == null) {
+        // Create new user verify token
+        await generateAndSendNewVerifyToken(user, isar, serviceCollection);
+        return null;
+      }
+
+      if (userVerify.expiresAt!.isBefore(DateTime.now())) {
+        // Delete the user verify token
+        await isar.writeTxn(() async {
+          await isar.userVerifys.delete(userVerify.id);
+        });
+
+        // Create new user verify token
+        await generateAndSendNewVerifyToken(user, isar, serviceCollection);
+      }
+
+      throw EmailNotVerifiedException();
     }
 
     final session = LoginSession()
@@ -53,5 +85,23 @@ class LoginSession {
     });
 
     return session;
+  }
+
+  static Future<void> generateAndSendNewVerifyToken(User user, Isar isar, ServiceCollection serviceCollection) async {
+    // Create new user verify token
+    final newUserVerify = UserVerify()
+      ..token = Utilities.generateRandomString(128)
+      ..expiresAt = DateTime.now().add(Duration(days: 1))
+      ..user.value = user;
+
+    // Save the new user verify token
+    await isar.writeTxn(() async {
+      await isar.userVerifys.put(newUserVerify);
+      await user.verifyToken.save();
+    });
+
+    // Send new email verification email
+    final mailService = serviceCollection.get<MailService>();
+    await mailService.sendMail(user.email!, "Verify email", "Please verify your email: https://api.palspace.dev/user/verify-email?t=${newUserVerify.token}");
   }
 }

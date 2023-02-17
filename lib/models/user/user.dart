@@ -2,14 +2,18 @@ import 'dart:convert';
 
 import 'package:crypt/crypt.dart';
 import 'package:isar/isar.dart';
+import 'package:palspace_backend/enums/trait.dart';
 import 'package:palspace_backend/exceptions/email_taken_exception.dart';
 import 'package:palspace_backend/exceptions/email_validation_exception.dart';
 import 'package:palspace_backend/exceptions/password_validation_exception.dart';
 import 'package:palspace_backend/exceptions/username_taken_exception.dart';
 import 'package:palspace_backend/models/login/session.dart';
-import 'package:palspace_backend/routes/models/login_request.dart';
+import 'package:palspace_backend/models/user/user_trait.dart';
+import 'package:palspace_backend/models/user/user_verify.dart';
 import 'package:palspace_backend/routes/models/register_request.dart';
+import 'package:palspace_backend/services/mail_service.dart';
 import 'package:palspace_backend/services/service_collection.dart';
+import 'package:palspace_backend/utilities/utilities.dart';
 import 'package:uuid/uuid.dart';
 
 import 'user_details.dart';
@@ -34,9 +38,21 @@ class User {
 
   UserDetails? details;
 
+  final verifyToken = IsarLink<UserVerify>();
+  final traits = IsarLinks<UserTrait>();
   final loginSessions = IsarLinks<LoginSession>();
 
-  static Future<LoginSession> fromRegisterRequest(RegisterRequest body, ServiceCollection serviceCollection) async {
+  dynamic toJson() {
+    return {
+      'uuid': uuid,
+      'username': username,
+      'email': email,
+      'details': details?.toJson(),
+      'traits': traits.toList().map((e) => e.toString()).toList()
+    };
+  }
+
+  static Future fromRegisterRequest(RegisterRequest body, ServiceCollection serviceCollection) async {
     // Check if email is actually an email
     final regex = RegExp(r'^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$');
     if (!regex.hasMatch(body.email)) {
@@ -70,17 +86,22 @@ class User {
       ..email = body.email
       ..hashedPassword = hashedPassword.hash
       ..salt = hashedPassword.salt;
+    final userVerify = UserVerify()
+      ..user.value = finalUser
+      ..expiresAt = DateTime.now().add(Duration(hours: 1))
+      ..token = Utilities.generateRandomString(128);
 
     await isar.writeTxn(() async {
       await isar.users.put(finalUser);
+      await isar.userVerifys.put(userVerify);
+      await userVerify.user.save();
     });
 
-    final session = await LoginSession.fromLoginRequest(LoginRequest(email: body.email, password: body.password), serviceCollection);
+    final mailService = serviceCollection.get<MailService>();
+    await mailService.sendMail(body.email, "Verify email", "Please verify your email: https://api.palspace.dev/user/verify-email?t=${userVerify.token}");
+  }
 
-    if (session == null) {
-      throw Exception('Something went wrong');
-    }
-
-    return session;
+  hasTrait(Trait trait) {
+    return traits.any((element) => element.trait == trait.name);
   }
 }

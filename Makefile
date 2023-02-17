@@ -20,6 +20,11 @@ dev:
 	make build
 	make up
 
+dev-local:
+	dart pub get
+	make build-runner
+	dart run bin/server.dart
+
 set-hosts:
 	echo "127.0.0.1    api.palspace.dev" | sudo tee -a /etc/hosts
 	echo "127.0.0.1    obj.palspace.dev" | sudo tee -a /etc/hosts

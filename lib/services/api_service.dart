@@ -16,7 +16,7 @@ class ApiService {
     final app = Router();
     final dotEnv = serviceCollection.get<DotEnv>();
 
-    app.mount('/users/', UsersRouter(serviceCollection).router);
+    app.mount('/user/', UsersRouter(serviceCollection).router);
     app.mount('/debug/', await authenticatedRouter(DebugRouter(serviceCollection).router));
     app.mount('/debug-noauth/', DebugRouter(serviceCollection).router);
 

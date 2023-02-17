@@ -33,7 +33,8 @@ class UserRouter {
             await LoginSession.fromLoginRequest(body, serviceCollection);
 
         if (session == null) {
-          return Response(401, body: 'Invalid credentials');
+          return Response(401, body: json.encode({"error": "invalid-credentials"}),
+              headers: {'Content-Type': 'application/json'});
         }
 
         return Response(200,

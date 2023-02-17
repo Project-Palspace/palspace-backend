@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:crypt/crypt.dart';
 import 'package:isar/isar.dart';
 import 'package:palspace_backend/exceptions/email_taken_exception.dart';
@@ -38,25 +40,25 @@ class User {
     // Check if email is actually an email
     final regex = RegExp(r'^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$');
     if (!regex.hasMatch(body.email)) {
-      throw EmailValidationException('Invalid email');
+      throw EmailValidationException(json.encode({ "error": "email-invalid" }));
     }
 
     // Check if the email is taken
     final isar = serviceCollection.get<Isar>();
     final user = await isar.users.where().emailEqualTo(body.email).findFirst();
     if (user != null) {
-      throw EmailTakenException('Email already taken');
+      throw EmailTakenException(json.encode({ "error": "email-in-use" }));
     }
 
     // Check if username is taken
     final user2 = await isar.users.where().usernameEqualTo(body.username).findFirst();
     if (user2 != null) {
-      throw UsernameTakenException('Username already taken');
+      throw UsernameTakenException(json.encode({ "error": "username-taken" }));
     }
 
     // Check if password is long enough and has at least a digit and a letter
     if (body.password.length < 8 || !body.password.contains(RegExp(r'[0-9]')) || !body.password.contains(RegExp(r'[a-zA-Z]'))) {
-      throw PasswordValidationException('Password must be at least 8 characters long and contain at least a digit and a letter');
+      throw PasswordValidationException(json.encode({ "error": "password-invalid", "message": "Password must be at least 8 characters long and contain at least a digit and a letter." }));
     }
 
     // Hash password

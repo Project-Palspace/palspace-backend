@@ -104,4 +104,24 @@ class LoginSession {
     final mailService = serviceCollection.get<MailService>();
     await mailService.sendMail(user.email!, "Verify email", "Please verify your email: https://api.palspace.dev/user/verify-email?t=${newUserVerify.token}");
   }
+
+  static fromUser(User user, ServiceCollection serviceCollection) {
+    final session = LoginSession()
+      ..token = Utilities.generateRandomString(128)
+      ..refreshToken = Utilities.generateRandomString(128)
+      ..expiresAt = DateTime.now().add(Duration(hours: 1))
+      ..refreshExpiresAt = DateTime.now().add(Duration(days: 1))
+      ..user.value = user;
+
+    user.loginSessions.add(session);
+
+    // Insert into database
+    final isar = serviceCollection.get<Isar>();
+    isar.writeTxn(() async {
+      await isar.loginSessions.put(session);
+      await user.loginSessions.save();
+    });
+
+    return session;
+  }
 }

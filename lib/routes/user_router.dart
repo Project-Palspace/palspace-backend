@@ -88,6 +88,10 @@ class UserRouter {
       User user = userVerify.user.value as User;
       user.traits.add(trait);
 
+      // TODO: Send email to user that their email has been verified
+      // Create new session for user
+      LoginSession session = await LoginSession.fromUser(user, serviceCollection);
+
       // Let's write the user and remove the userVerify
       await isar.writeTxn(() async {
         await isar.userVerifys.delete(userVerify.id);
@@ -95,7 +99,7 @@ class UserRouter {
         await user.traits.save();
       });
 
-      return Response(200);
+      return Response(200, body: json.encode(session.toJson()), headers: {'Content-Type': 'application/json'});
     });
 
     return router;

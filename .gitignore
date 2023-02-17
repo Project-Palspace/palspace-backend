@@ -1,0 +1,19 @@
+# Generated code
+*.g.dart
+*.freezed.dart
+
+.idea/
+.vscode/
+.dart_tool/
+.DS_Store/
+
+# Docker data folders
+docker/db-data/
+docker/obj-data/
+
+# Ingress crap
+docker/ingress/logs/
+docker/ingress/nginx/temp
+docker/ingress/database.sqlite
+docker/ingress/nginx/proxy_host/
+docker/ingress/custom_ssl/

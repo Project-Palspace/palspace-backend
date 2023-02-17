@@ -14,10 +14,6 @@ docker/obj-data/
 
 # Ingress crap
 docker/ingress/logs/
-docker/ingress/nginx/temp
-docker/ingress/database.sqlite
-docker/ingress/nginx/proxy_host/
-docker/ingress/custom_ssl/
 
 # Apple horseshit
 .DS_Store

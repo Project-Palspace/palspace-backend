@@ -1,0 +1,66 @@
+version: "3"
+name: palspace
+services:
+
+  palspace-backend:
+    image: palspace-backend
+    hostname: "api.palspace.dev"
+    environment:
+      # Mailer SMTP settings
+      - SMTP_NAME="Palspace Dev"
+      - SMTP_EMAIL=""
+      - SMTP_PASSWORD=""
+      - SMTP_HOST=""
+      - SMTP_PORT=""
+      - SMTP_SSL="TRUE"
+      
+      # API host settings
+      - HTTP_PORT="8888"
+      - HTTP_HOST="0.0.0.0"
+
+      # Minio object storage settings
+      - OBJ_KEY="palspace_dev"
+      - OBJ_SECRET="palspace_dev"
+      - OBJ_SSL="TRUE"
+      - OBJ_HOST="obj.palspace.dev"
+      - OBJ_PORT="443"
+
+      - DEBUG="TRUE"
+    volumes:
+      - ./db-data:/app/isar
+    networks:
+      main:
+        aliases:
+          - api
+
+  palspace-obj:
+    image: quay.io/minio/minio
+    hostname: "obj.palspace.dev"
+    command: "server /data --console-address \":9001\""
+    environment:
+      - MINIO_ROOT_USER=palspace_dev
+      - MINIO_ROOT_PASSWORD=palspace_dev
+    volumes:
+      - ./obj-data:/data
+    networks:
+      main:
+        aliases:
+          - obj
+
+  ingress:
+    image: 'jc21/nginx-proxy-manager:latest'
+    ports:
+      - '80:80'
+      - '443:443'
+    links:
+      - "palspace-backend:api"
+    volumes:
+      - ./ingress/:/data
+    networks:
+      main:
+        aliases:
+          - obj.palspace.dev
+          - api.palspace.dev
+
+networks:
+  main:

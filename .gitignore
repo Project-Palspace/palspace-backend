@@ -2,6 +2,7 @@
 *.g.dart
 *.freezed.dart
 
+# Local dev stuff
 .idea/
 .vscode/
 .dart_tool/
@@ -17,3 +18,6 @@ docker/ingress/nginx/temp
 docker/ingress/database.sqlite
 docker/ingress/nginx/proxy_host/
 docker/ingress/custom_ssl/
+
+# Apple horseshit
+.DS_Store

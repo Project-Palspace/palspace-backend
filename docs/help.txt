@@ -1,0 +1,33 @@
+    .----.  .--.  .-.    .----..----.  .--.   .---. .----.
+    | {}  }/ {} \ | |   { {__  | {}  }/ {} \ /  ___}| {_  
+    | .--'/  /\  \| `--..-._} }| .--'/  /\  \\     }| {__ 
+    `-'   `-'  `-'`----'`----' `-'   `-'  `-' `---' `----'
+
+    |------------------------------------------------------------------------|
+    | NAME                   | URL                                           |
+    |------------------------|-----------------------------------------------|
+    | Backend API            | http://api.palspace.dev                       |
+    | Object Storage (minio) | http://obj.palspace.dev                       |
+    | Minio web portal       | http://obj-portal.palspace.dev                |
+    | Nginx proxy manager    | http://proxy.palspace.dev                     |
+    |------------------------------------------------------------------------|
+    | NAME                   | Credentials (user:pass)                       |
+    |------------------------|-----------------------------------------------|
+    | Minio web portal       | palspace_dev:palspace_dev                     |
+    | Nginx proxy manager    | palspace_dev@example.com:palspace_dev         |
+    |------------------------------------------------------------------------|
+
+
+Usage:
+
+    make set-hosts      - To insert the domain names into your /etc/hosts file.
+    make build          - To build the latest backend docker image.
+    make up             - To spin up the stack.
+    make down           - To turn off the stack.
+    make document       - To generate and output a swagger file of the API.
+    make update         - To git pull, build and spin up the latest backend stack.
+    make import-certs   - To generate and install new self signed certificates
+    make log            - To output and follow the backend container log
+    make restart        - To restart the backend container
+
+    

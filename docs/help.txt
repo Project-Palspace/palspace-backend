@@ -6,10 +6,10 @@
     |------------------------------------------------------------------------|
     | NAME                   | URL                                           |
     |------------------------|-----------------------------------------------|
-    | Backend API            | http://api.palspace.dev                       |
-    | Object Storage (minio) | http://obj.palspace.dev                       |
-    | Minio web portal       | http://obj-portal.palspace.dev                |
-    | Nginx proxy manager    | http://proxy.palspace.dev                     |
+    | Backend API            | https://api.palspace.dev                      |
+    | Object Storage (minio) | https://obj.palspace.dev                      |
+    | Minio web portal       | https://obj-portal.palspace.dev               |
+    | Nginx proxy manager    | https://proxy.palspace.dev                    |
     |------------------------------------------------------------------------|
     | NAME                   | Credentials (user:pass)                       |
     |------------------------|-----------------------------------------------|
@@ -24,7 +24,6 @@ Usage:
     make build          - To build the latest backend docker image.
     make up             - To spin up the stack.
     make down           - To turn off the stack.
-    make document       - To generate and output a swagger file of the API.
     make update         - To git pull, build and spin up the latest backend stack.
     make import-certs   - To generate and install new self signed certificates
     make log            - To output and follow the backend container log

@@ -20,12 +20,6 @@ To stop the container and destroy it:
 $ make down
 ```
 
-To generate the latest Swagger file: (Make sure the container is running `make up`)
-
-```
-$ make document
-```
-
 For more details see
 
 ```
@@ -35,15 +29,14 @@ $ make
 
 ### Locally
 
-1. Make sure you have conduit on your local machine.
+1. Install dependencies
 ```
-$ dart pub global activate conduit
-$ conduit --version
+$ pub get
 ```
 
 2. Run the server
 ```
-$ onduit serve
+$ dart run bin/server.dart
 ```
 
 ## Running Application Tests
@@ -51,7 +44,7 @@ $ onduit serve
 To run all tests for this application, run the following in this directory:
 
 ```
-$ conduit test
+$ dart test
 ```
 
 ## Deploying latest image to docker registry

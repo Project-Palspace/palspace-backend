@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:palspace_backend/routes/models/login_request.dart';
@@ -19,7 +18,8 @@ class RequestBody {
     } else if (T == RegisterRequest) {
       return RegisterRequest.fromJson(json) as T;
     } else {
-      throw Exception('Invalid type parameter for fromRequest, must be $T but no such type exists in the function');
+      throw Exception(
+          'Invalid type parameter for fromRequest, must be $T but no such type exists in the function');
     }
   }
 }

@@ -8,15 +8,18 @@ import 'package:palspace_backend/services/service_collection.dart';
 import 'package:palspace_backend/services/user_trait_service.dart';
 import 'package:shelf/shelf.dart';
 
-Future<LoginSession?> isValidToken(String token, ServiceCollection serviceCollection) async {
+Future<LoginSession?> isValidToken(
+    String token, ServiceCollection serviceCollection) async {
   final isar = serviceCollection.get<Isar>();
-  final loginSession = await isar.loginSessions.filter().tokenEqualTo(token).findFirst();
+  final loginSession =
+      await isar.loginSessions.filter().tokenEqualTo(token).findFirst();
 
   if (loginSession == null) {
     return null;
   }
 
-  if (loginSession.expiresAt!.millisecondsSinceEpoch < DateTime.now().millisecondsSinceEpoch) {
+  if (loginSession.expiresAt!.millisecondsSinceEpoch <
+      DateTime.now().millisecondsSinceEpoch) {
     return null;
   }
 
@@ -37,9 +40,9 @@ FutureOr<Middleware> authenticateMiddleware(ServiceCollection serviceCollection,
           final updatedRequest = request.change(context: {'session': session});
 
           try {
-            await userTraitService.assertHasTraits(session.user.value!, requiredTraits);
-          }
-          on MissingTraitException catch (e) {
+            await userTraitService.assertHasTraits(
+                session.user.value!, requiredTraits);
+          } on MissingTraitException catch (e) {
             return Response.unauthorized('Invalid or missing Bearer token');
           }
 

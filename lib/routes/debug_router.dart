@@ -23,7 +23,8 @@ class DebugRouter {
         "session": session.toJson(),
         "user": session.user.value?.toJson(),
       };
-      return Response.ok(json.encode(details), headers: {'Content-Type': 'application/json'});
+      return Response.ok(json.encode(details),
+          headers: {'Content-Type': 'application/json'});
     });
 
     router.get('/trait-test', (Request request) async {
@@ -33,20 +34,21 @@ class DebugRouter {
       bool missingTraitExceptionThrown = false;
 
       try {
-        await userTraitService.assertHasNotTraits(session.user.value!, [Trait.EMAIL_VERIFIED]);
-      }
-      on UnexpectedTraitException catch (e) {
+        await userTraitService
+            .assertHasNotTraits(session.user.value!, [Trait.EMAIL_VERIFIED]);
+      } on UnexpectedTraitException catch (e) {
         unpectedTraitExceptionThrown = true;
       }
 
       try {
-        await userTraitService.assertHasTraits(session.user.value!, [Trait.EMAIL_VERIFIED]);
-      }
-      on MissingTraitException catch (e) {
+        await userTraitService
+            .assertHasTraits(session.user.value!, [Trait.EMAIL_VERIFIED]);
+      } on MissingTraitException catch (e) {
         missingTraitExceptionThrown = true;
       }
 
-      return Response.ok('EMAIL_VERIFIED: ${session.user.value!.hasTrait(Trait.EMAIL_VERIFIED)}, '
+      return Response.ok(
+          'EMAIL_VERIFIED: ${session.user.value!.hasTrait(Trait.EMAIL_VERIFIED)}, '
           'unpectedTraitExceptionThrown: $unpectedTraitExceptionThrown, '
           'missingTraitExceptionThrown: $missingTraitExceptionThrown');
     });

@@ -11,7 +11,7 @@ class UserTrait {
   Id id = Isar.autoIncrement;
 
   String? trait;
-  
+
   @Backlink(to: 'traits')
   final user = IsarLink<User>();
 }

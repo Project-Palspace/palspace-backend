@@ -32,9 +32,11 @@ class LoginSession {
     };
   }
 
-  static Future<LoginSession?> fromLoginRequest(LoginRequest loginRequest, ServiceCollection serviceCollection) async {
+  static Future<LoginSession?> fromLoginRequest(
+      LoginRequest loginRequest, ServiceCollection serviceCollection) async {
     final isar = serviceCollection.get<Isar>();
-    final user = await isar.users.where().emailEqualTo(loginRequest.email).findFirst();
+    final user =
+        await isar.users.where().emailEqualTo(loginRequest.email).findFirst();
 
     if (user == null) {
       return null;
@@ -87,7 +89,8 @@ class LoginSession {
     return session;
   }
 
-  static Future<void> generateAndSendNewVerifyToken(User user, Isar isar, ServiceCollection serviceCollection) async {
+  static Future<void> generateAndSendNewVerifyToken(
+      User user, Isar isar, ServiceCollection serviceCollection) async {
     // Create new user verify token
     final newUserVerify = UserVerify()
       ..token = Utilities.generateRandomString(128)
@@ -102,7 +105,8 @@ class LoginSession {
 
     // Send new email verification email
     final mailService = serviceCollection.get<MailService>();
-    await mailService.sendMail(user.email!, "Verify email", "Please verify your email: https://api.palspace.dev/user/verify-email?t=${newUserVerify.token}");
+    await mailService.sendMail(user.email!, "Verify email",
+        "Please verify your email: https://api.palspace.dev/user/verify-email?t=${newUserVerify.token}");
   }
 
   static fromUser(User user, ServiceCollection serviceCollection) {

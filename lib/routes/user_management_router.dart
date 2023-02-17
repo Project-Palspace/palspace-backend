@@ -41,7 +41,9 @@ class UserManagementRouter {
 
     router.get('/sessions', (Request request) async {
       final session = request.context['session'] as LoginSession;
-      return Response(200, body: json.encode(session.user.value?.loginSessions.toList()), headers: {'Content-Type': 'application/json'});
+      return Response(200,
+          body: json.encode(session.user.value?.loginSessions.toList()),
+          headers: {'Content-Type': 'application/json'});
     });
 
     return router;

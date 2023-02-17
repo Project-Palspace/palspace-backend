@@ -19,16 +19,26 @@ class ApiService {
     final dotEnv = serviceCollection.get<DotEnv>();
 
     app.mount('/user/', UserRouter(serviceCollection).router);
-    app.mount('/user/manage', await authenticatedRouter(UserManagementRouter(serviceCollection).router, requiredTraits: [ Trait.EMAIL_VERIFIED ]));
-    app.mount('/debug/', await authenticatedRouter(DebugRouter(serviceCollection).router));
+    app.mount(
+        '/user/manage',
+        await authenticatedRouter(
+            UserManagementRouter(serviceCollection).router,
+            requiredTraits: [Trait.EMAIL_VERIFIED]));
+    app.mount('/debug/',
+        await authenticatedRouter(DebugRouter(serviceCollection).router));
     app.mount('/debug-noauth/', DebugRouter(serviceCollection).router);
 
-    final server = await io.serve(app, dotEnv['HTTP_HOST']!, int.parse(dotEnv['HTTP_PORT']!));
+    final server = await io.serve(
+        app, dotEnv['HTTP_HOST']!, int.parse(dotEnv['HTTP_PORT']!));
     print('Server listening on http://${server.address.host}:${server.port}');
   }
 
-  authenticatedRouter(Router router, {List<Trait> requiredTraits = const []}) async => Pipeline().addMiddleware(await authenticateMiddleware(serviceCollection, requiredTraits: requiredTraits)).addHandler(router);
+  authenticatedRouter(Router router,
+          {List<Trait> requiredTraits = const []}) async =>
+      Pipeline()
+          .addMiddleware(await authenticateMiddleware(serviceCollection,
+              requiredTraits: requiredTraits))
+          .addHandler(router);
 }
 
-class AuthenticatedUsersRouter {
-}
+class AuthenticatedUsersRouter {}

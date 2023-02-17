@@ -28,39 +28,37 @@ class UserRouter {
 
     router.post('/login', (Request request) async {
       final body = await RequestBody.fromRequest<LoginRequest>(request);
-      try
-      {
-        final session = await LoginSession.fromLoginRequest(body, serviceCollection);
+      try {
+        final session =
+            await LoginSession.fromLoginRequest(body, serviceCollection);
 
         if (session == null) {
           return Response(401, body: 'Invalid credentials');
         }
 
-        return Response(200, body: json.encode(session.toJson()), headers: {'Content-Type': 'application/json'});
-      }
-      on EmailNotVerifiedException catch (e) {
-        return Response(401, body: json.encode({"error": "email-not-verified"}), headers: {'Content-Type': 'application/json'});
+        return Response(200,
+            body: json.encode(session.toJson()),
+            headers: {'Content-Type': 'application/json'});
+      } on EmailNotVerifiedException catch (e) {
+        return Response(401,
+            body: json.encode({"error": "email-not-verified"}),
+            headers: {'Content-Type': 'application/json'});
       }
     });
 
     router.post('/register', (Request request) async {
       final body = await RequestBody.fromRequest<RegisterRequest>(request);
 
-      try
-      {
+      try {
         await User.fromRegisterRequest(body, serviceCollection);
         return Response(201);
-      }
-      on EmailTakenException catch (e) {
+      } on EmailTakenException catch (e) {
         return Response(409, body: e.message);
-      }
-      on EmailValidationException catch (e) {
+      } on EmailValidationException catch (e) {
         return Response(400, body: e.message);
-      }
-      on UsernameTakenException catch (e) {
+      } on UsernameTakenException catch (e) {
         return Response(409, body: e.message);
-      }
-      on PasswordValidationException catch (e) {
+      } on PasswordValidationException catch (e) {
         return Response(409, body: e.message);
       }
     });
@@ -68,7 +66,8 @@ class UserRouter {
     router.get('/verify-email', (Request request) async {
       final token = request.url.queryParameters['t'];
       final isar = serviceCollection.get<Isar>();
-      final userVerify = await isar.userVerifys.filter().tokenEqualTo(token).findFirst();
+      final userVerify =
+          await isar.userVerifys.filter().tokenEqualTo(token).findFirst();
 
       if (userVerify == null) {
         return Response(404);
@@ -90,7 +89,8 @@ class UserRouter {
 
       // TODO: Send email to user that their email has been verified
       // Create new session for user
-      LoginSession session = await LoginSession.fromUser(user, serviceCollection);
+      LoginSession session =
+          await LoginSession.fromUser(user, serviceCollection);
 
       // Let's write the user and remove the userVerify
       await isar.writeTxn(() async {
@@ -99,7 +99,9 @@ class UserRouter {
         await user.traits.save();
       });
 
-      return Response(200, body: json.encode(session.toJson()), headers: {'Content-Type': 'application/json'});
+      return Response(200,
+          body: json.encode(session.toJson()),
+          headers: {'Content-Type': 'application/json'});
     });
 
     return router;

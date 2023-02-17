@@ -6,7 +6,6 @@ class MissingTraitException {
   late final Response response;
 
   MissingTraitException(this.trait) {
-    response =
-        Response(403, body: "missing-${trait.toString().toLowerCase()}");
+    response = Response(403, body: "missing-${trait.toString().toLowerCase()}");
   }
 }

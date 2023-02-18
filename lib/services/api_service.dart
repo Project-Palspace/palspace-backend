@@ -1,6 +1,8 @@
+
 import 'package:dotenv/dotenv.dart';
 import 'package:palspace_backend/enums/trait.dart';
 import 'package:palspace_backend/middleware/authentication.dart';
+import 'package:palspace_backend/middleware/route_not_found_handler.dart';
 import 'package:palspace_backend/routes/debug_router.dart';
 import 'package:palspace_backend/routes/user_management_router.dart';
 import 'package:palspace_backend/routes/user_router.dart';
@@ -16,6 +18,10 @@ class ApiService {
 
   Future startApi() async {
     final app = Router();
+    final pipeline = Pipeline()
+        .addMiddleware(routeNotFoundHandler())
+        .addHandler(app.call);
+
     final dotEnv = serviceCollection.get<DotEnv>();
 
     app.mount('/user/', UserRouter(serviceCollection).router);
@@ -29,7 +35,7 @@ class ApiService {
     app.mount('/debug-noauth/', DebugRouter(serviceCollection).router);
 
     final server = await io.serve(
-        app, dotEnv['HTTP_HOST']!, int.parse(dotEnv['HTTP_PORT']!));
+        pipeline, dotEnv['HTTP_HOST']!, int.parse(dotEnv['HTTP_PORT']!));
     print('Server listening on http://${server.address.host}:${server.port}');
   }
 

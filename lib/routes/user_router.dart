@@ -40,7 +40,7 @@ class UserRouter {
         return Response(200,
             body: json.encode(session.toJson()),
             headers: {'Content-Type': 'application/json'});
-      } on EmailNotVerifiedException catch (e) {
+      } on EmailNotVerifiedException {
         return Response(401,
             body: json.encode({"error": "email-not-verified"}),
             headers: {'Content-Type': 'application/json'});
@@ -67,6 +67,7 @@ class UserRouter {
     router.get('/verify-email', (Request request) async {
       final token = request.url.queryParameters['t'];
       final isar = serviceCollection.get<Isar>();
+      final userAgent = request.headers['user-agent'];
       final userVerify =
           await isar.userVerifys.filter().tokenEqualTo(token).findFirst();
 
@@ -100,9 +101,13 @@ class UserRouter {
         await user.traits.save();
       });
 
-      return Response(200,
+      if (! userAgent!.contains('Palspace')) {
+        return Response.ok('Your email is now verified, you can now login in the app.');
+      } else {
+        return Response(200,
           body: json.encode(session.toJson()),
           headers: {'Content-Type': 'application/json'});
+      }
     });
 
     return router;

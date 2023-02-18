@@ -35,6 +35,7 @@ class User {
 
   String? hashedPassword;
   String? salt;
+  String? bio;
 
   UserDetails? details;
 
@@ -98,7 +99,7 @@ class User {
     final userVerify = UserVerify()
       ..user.value = finalUser
       ..expiresAt = DateTime.now().add(Duration(hours: 1))
-      ..token = Utilities.generateRandomString(128);
+      ..token = Utilities.generateRandomString(12);
 
     await isar.writeTxn(() async {
       await isar.users.put(finalUser);

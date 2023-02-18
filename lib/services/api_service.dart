@@ -4,6 +4,7 @@ import 'package:palspace_backend/enums/trait.dart';
 import 'package:palspace_backend/middleware/authentication.dart';
 import 'package:palspace_backend/middleware/route_not_found_handler.dart';
 import 'package:palspace_backend/routes/debug_router.dart';
+import 'package:palspace_backend/routes/user_details_router.dart';
 import 'package:palspace_backend/routes/user_management_router.dart';
 import 'package:palspace_backend/routes/user_router.dart';
 import 'package:palspace_backend/services/service_collection.dart';
@@ -29,6 +30,11 @@ class ApiService {
         '/user/manage',
         await authenticatedRouter(
             UserManagementRouter(serviceCollection).router,
+            requiredTraits: [Trait.EMAIL_VERIFIED]));
+    app.mount(
+        '/user/details',
+        await authenticatedRouter(
+            UserDetailsRouter(serviceCollection).router,
             requiredTraits: [Trait.EMAIL_VERIFIED]));
     app.mount('/debug/',
         await authenticatedRouter(DebugRouter(serviceCollection).router));

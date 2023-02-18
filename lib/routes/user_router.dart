@@ -13,7 +13,7 @@ import 'package:palspace_backend/models/user/user_trait.dart';
 import 'package:palspace_backend/models/user/user_verify.dart';
 import 'package:palspace_backend/routes/models/register_request.dart';
 import 'package:palspace_backend/services/service_collection.dart';
-import 'package:palspace_backend/utilities/request_body.dart';
+import 'package:palspace_backend/utilities/request_utils.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
@@ -45,7 +45,7 @@ class UserRouter {
     });
 
     router.post('/register', (Request request) async {
-      final body = await RequestBody.fromRequest<RegisterRequest>(request);
+      final body = await RequestUtils.bodyFromRequest<RegisterRequest>(request);
 
       try {
         await User.fromRegisterRequest(body, serviceCollection);
@@ -82,7 +82,7 @@ class UserRouter {
       }
 
       // Add trait to user EMAIL_VERIFIED
-      final trait = UserTrait()..trait = Trait.EMAIL_VERIFIED.name;
+      final trait = UserTrait(userTrait: Trait.EMAIL_VERIFIED);
       User user = userVerify.user.value as User;
       user.traits.add(trait);
 

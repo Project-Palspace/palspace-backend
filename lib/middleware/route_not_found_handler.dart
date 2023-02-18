@@ -7,7 +7,7 @@ Middleware routeNotFoundHandler() {
       final response = await innerHandler(request);
       if (response.statusCode == 404) {
         final jsonResponse = {'error': await response.readAsString()};
-        return Response.ok(jsonEncode(jsonResponse), headers: {'Content-Type': 'application/json'});
+        return Response.notFound(jsonEncode(jsonResponse), headers: {'Content-Type': 'application/json'});
       }
       return response;
     };

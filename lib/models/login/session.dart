@@ -9,7 +9,7 @@ import 'package:palspace_backend/routes/models/login_request.dart';
 import 'package:palspace_backend/services/mail_service.dart';
 import 'package:palspace_backend/services/service_collection.dart';
 import 'package:crypt/crypt.dart';
-import 'package:palspace_backend/utilities/request_body.dart';
+import 'package:palspace_backend/utilities/request_utils.dart';
 import 'package:palspace_backend/utilities/utilities.dart';
 import 'package:shelf/shelf.dart';
 
@@ -42,7 +42,7 @@ class LoginSession {
 
   static Future<LoginSession?> fromLoginRequest(
       Request request, ServiceCollection serviceCollection) async {
-    final loginRequest = await RequestBody.fromRequest<LoginRequest>(request);
+    final loginRequest = await RequestUtils.bodyFromRequest<LoginRequest>(request);
     final isar = serviceCollection.get<Isar>();
     final user =
         await isar.users.where().emailEqualTo(loginRequest.email).findFirst();
@@ -106,7 +106,7 @@ class LoginSession {
       User user, Isar isar, ServiceCollection serviceCollection) async {
     // Create new user verify token
     final newUserVerify = UserVerify()
-      ..token = Utilities.generateRandomString(128)
+      ..token = Utilities.generateRandomString(12)
       ..expiresAt = DateTime.now().add(Duration(days: 1))
       ..user.value = user;
 

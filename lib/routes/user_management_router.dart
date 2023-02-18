@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:isar/isar.dart';
 import 'package:palspace_backend/models/login/session.dart';
 import 'package:palspace_backend/services/service_collection.dart';
+import 'package:palspace_backend/utilities/request_utils.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
@@ -15,7 +16,7 @@ class UserManagementRouter {
     final router = Router();
 
     router.get('/logout', (Request request) async {
-      final session = request.context['session'] as LoginSession;
+      final session = await RequestUtils.sessionFromRequest(request);
 
       // Remove session from database
       final isar = serviceCollection.get<Isar>();
@@ -25,7 +26,7 @@ class UserManagementRouter {
     });
 
     router.get('/logout-all', (Request request) async {
-      final session = request.context['session'] as LoginSession;
+      final session = await RequestUtils.sessionFromRequest(request);
 
       // Remove session from database
       final isar = serviceCollection.get<Isar>();
@@ -40,17 +41,17 @@ class UserManagementRouter {
     });
 
     router.get('/sessions', (Request request) async {
-      final session = request.context['session'] as LoginSession;
-      final sessions = session.user.value?.loginSessions.map((s) => {'id': s.id, 'ipAddress': s.ipAddress, 'userAgent': s.userAgent, 'expiresAt': s.expiresAt!.toIso8601String()});
+      final user = await RequestUtils.userFromRequest(request);
+      final sessions = user.loginSessions.map((s) => {'id': s.id, 'ipAddress': s.ipAddress, 'userAgent': s.userAgent, 'expiresAt': s.expiresAt!.toIso8601String()});
       return Response(200,
-          body: json.encode(sessions?.toList()),
+          body: json.encode(sessions.toList()),
           headers: {'Content-Type': 'application/json'});
     });
 
     router.get('/traits', (Request request) async {
-      final session = request.context['session'] as LoginSession;
+      final user = await RequestUtils.userFromRequest(request);
       return Response(200,
-          body: json.encode(session.user.value?.traits.toList()),
+          body: json.encode(user.traits.toList()),
           headers: {'Content-Type': 'application/json'});
     });
 

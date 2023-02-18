@@ -8,6 +8,8 @@ import 'package:palspace_backend/exceptions/email_validation_exception.dart';
 import 'package:palspace_backend/exceptions/password_validation_exception.dart';
 import 'package:palspace_backend/exceptions/username_taken_exception.dart';
 import 'package:palspace_backend/models/login/session.dart';
+import 'package:palspace_backend/models/user/user_details.dart';
+import 'package:palspace_backend/models/user/user_facts.dart';
 import 'package:palspace_backend/models/user/user_trait.dart';
 import 'package:palspace_backend/models/user/user_verify.dart';
 import 'package:palspace_backend/routes/models/register_request.dart';
@@ -15,8 +17,6 @@ import 'package:palspace_backend/services/mail_service.dart';
 import 'package:palspace_backend/services/service_collection.dart';
 import 'package:palspace_backend/utilities/utilities.dart';
 import 'package:uuid/uuid.dart';
-
-import 'user_details.dart';
 
 part 'user.g.dart';
 
@@ -35,9 +35,10 @@ class User {
 
   String? hashedPassword;
   String? salt;
-  String? bio;
+
 
   UserDetails? details;
+  UserFacts? facts;
 
   final verifyToken = IsarLink<UserVerify>();
   final traits = IsarLinks<UserTrait>();
@@ -48,7 +49,7 @@ class User {
       'uuid': uuid,
       'username': username,
       'email': email,
-      'details': details?.toJson(),
+      'details': facts?.toJson(),
       'traits': traits.toList()
     };
   }

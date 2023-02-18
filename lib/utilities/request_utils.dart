@@ -4,7 +4,8 @@ import 'package:palspace_backend/models/login/session.dart';
 import 'package:palspace_backend/models/user/user.dart';
 import 'package:palspace_backend/routes/models/login_request.dart';
 import 'package:palspace_backend/routes/models/register_request.dart';
-import 'package:palspace_backend/routes/models/user_details_request.dart';
+import 'package:palspace_backend/routes/models/user_details.dart';
+import 'package:palspace_backend/routes/models/user_facts_request.dart';
 import 'package:shelf/shelf.dart';
 
 class RequestUtils {
@@ -29,6 +30,8 @@ class RequestUtils {
       return LoginRequest.fromJson(json) as T;
     } else if (T == RegisterRequest) {
       return RegisterRequest.fromJson(json) as T;
+    } else if (T == UserFactsRequest) {
+      return UserFactsRequest.fromJson(json) as T;
     } else if (T == UserDetailsRequest) {
       return UserDetailsRequest.fromJson(json) as T;
     } else {

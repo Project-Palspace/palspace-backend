@@ -4,19 +4,15 @@ part 'user_details.g.dart';
 
 @embedded
 class UserDetails {
-  String? firstName;
-  String? lastName;
-  String? homeCity;
+  String? bio;
   String? currentCity;
-  DateTime? birthDate;
+  String? homeCity;
 
   dynamic toJson() {
     return {
-      'firstName': firstName,
-      'lastName': lastName,
-      'homeCity': homeCity,
+      'bio': bio,
       'currentCity': currentCity,
-      'birthDate': birthDate?.toIso8601String()
+      'homeCity': homeCity,
     };
   }
 }

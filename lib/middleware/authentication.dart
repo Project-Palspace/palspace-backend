@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:isar/isar.dart';
 import 'package:palspace_backend/enums/trait.dart';
@@ -43,13 +44,13 @@ FutureOr<Middleware> authenticateMiddleware(ServiceCollection serviceCollection,
             await userTraitService.assertHasTraits(
                 session.user.value!, requiredTraits);
           } on MissingTraitException catch (e) {
-            return Response.unauthorized('Invalid or missing Bearer token');
+            return Response.unauthorized(json.encode({"error": 'Invalid or missing Bearer token'}));
           }
 
           return innerHandler(updatedRequest);
         }
       }
-      return Response.unauthorized('Invalid or missing Bearer token');
+      return Response.unauthorized(json.encode({"error": 'Invalid or missing Bearer token'}));
     };
   };
 }

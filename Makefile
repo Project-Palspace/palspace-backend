@@ -44,3 +44,6 @@ restart:
 
 log:
 	docker logs --follow palspace-palspace-backend-1
+
+lint:
+	dart format .

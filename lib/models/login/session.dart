@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:isar/isar.dart';
 import 'package:palspace_backend/enums/trait.dart';
 import 'package:palspace_backend/exceptions/email_not_verified_exception.dart';
@@ -7,7 +9,9 @@ import 'package:palspace_backend/routes/models/login_request.dart';
 import 'package:palspace_backend/services/mail_service.dart';
 import 'package:palspace_backend/services/service_collection.dart';
 import 'package:crypt/crypt.dart';
+import 'package:palspace_backend/utilities/request_body.dart';
 import 'package:palspace_backend/utilities/utilities.dart';
+import 'package:shelf/shelf.dart';
 
 part 'session.g.dart';
 
@@ -15,6 +19,8 @@ part 'session.g.dart';
 class LoginSession {
   Id id = Isar.autoIncrement;
 
+  String? userAgent;
+  String? ipAddress;
   String? token;
   String? refreshToken;
   DateTime? expiresAt;
@@ -25,6 +31,8 @@ class LoginSession {
 
   dynamic toJson() {
     return {
+      'userAgent': userAgent,
+      'ipAddress': ipAddress,
       'token': token,
       'refreshToken': refreshToken,
       'expiresAt': expiresAt?.toIso8601String(),
@@ -33,7 +41,8 @@ class LoginSession {
   }
 
   static Future<LoginSession?> fromLoginRequest(
-      LoginRequest loginRequest, ServiceCollection serviceCollection) async {
+      Request request, ServiceCollection serviceCollection) async {
+    final loginRequest = await RequestBody.fromRequest<LoginRequest>(request);
     final isar = serviceCollection.get<Isar>();
     final user =
         await isar.users.where().emailEqualTo(loginRequest.email).findFirst();
@@ -72,11 +81,15 @@ class LoginSession {
       throw EmailNotVerifiedException();
     }
 
+    final ipAddress = (request.context['shelf.io.connection_info'] as HttpConnectionInfo).remoteAddress.address;
+    final userAgent = request.headers['user-agent'] ?? request.headers['User-Agent'];
     final session = LoginSession()
+      ..userAgent = userAgent
+      ..ipAddress = ipAddress
       ..token = Utilities.generateRandomString(128)
       ..refreshToken = Utilities.generateRandomString(128)
       ..expiresAt = DateTime.now().add(Duration(hours: 1))
-      ..refreshExpiresAt = DateTime.now().add(Duration(days: 1))
+      ..refreshExpiresAt = DateTime.now().add(Duration(days: 30))
       ..user.value = user;
 
     user.loginSessions.add(session);
@@ -109,12 +122,16 @@ class LoginSession {
         "Please verify your email: https://api.palspace.dev/user/verify-email?t=${newUserVerify.token}");
   }
 
-  static fromUser(User user, ServiceCollection serviceCollection) {
+  static fromUser(User user, Request? request, ServiceCollection serviceCollection) {
+    final ipAddress = ((request?.context['shelf.io.connection_info'] as HttpConnectionInfo).remoteAddress.address);
+    final userAgent = (request?.headers['user-agent'] ?? request?.headers['User-Agent']) ?? 'Unknown';
     final session = LoginSession()
+      ..userAgent = userAgent
+      ..ipAddress = ipAddress
       ..token = Utilities.generateRandomString(128)
       ..refreshToken = Utilities.generateRandomString(128)
       ..expiresAt = DateTime.now().add(Duration(hours: 1))
-      ..refreshExpiresAt = DateTime.now().add(Duration(days: 1))
+      ..refreshExpiresAt = DateTime.now().add(Duration(days: 30))
       ..user.value = user;
 
     user.loginSessions.add(session);

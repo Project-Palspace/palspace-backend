@@ -41,8 +41,16 @@ class UserManagementRouter {
 
     router.get('/sessions', (Request request) async {
       final session = request.context['session'] as LoginSession;
+      final sessions = session.user.value?.loginSessions.map((s) => {'id': s.id, 'ipAddress': s.ipAddress, 'userAgent': s.userAgent, 'expiresAt': s.expiresAt!.toIso8601String()});
       return Response(200,
-          body: json.encode(session.user.value?.loginSessions.toList()),
+          body: json.encode(sessions?.toList()),
+          headers: {'Content-Type': 'application/json'});
+    });
+
+    router.get('/traits', (Request request) async {
+      final session = request.context['session'] as LoginSession;
+      return Response(200,
+          body: json.encode(session.user.value?.traits.toList()),
           headers: {'Content-Type': 'application/json'});
     });
 

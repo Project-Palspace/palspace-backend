@@ -48,7 +48,7 @@ class User {
       'username': username,
       'email': email,
       'details': details?.toJson(),
-      'traits': traits.toList().map((e) => e.toString()).toList()
+      'traits': traits.toList()
     };
   }
 

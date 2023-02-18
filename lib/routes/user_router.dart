@@ -11,7 +11,6 @@ import 'package:palspace_backend/models/login/session.dart';
 import 'package:palspace_backend/models/user/user.dart';
 import 'package:palspace_backend/models/user/user_trait.dart';
 import 'package:palspace_backend/models/user/user_verify.dart';
-import 'package:palspace_backend/routes/models/login_request.dart';
 import 'package:palspace_backend/routes/models/register_request.dart';
 import 'package:palspace_backend/services/service_collection.dart';
 import 'package:palspace_backend/utilities/request_body.dart';
@@ -27,10 +26,8 @@ class UserRouter {
     final router = Router();
 
     router.post('/login', (Request request) async {
-      final body = await RequestBody.fromRequest<LoginRequest>(request);
       try {
-        final session =
-            await LoginSession.fromLoginRequest(body, serviceCollection);
+        final session = await LoginSession.fromLoginRequest(request, serviceCollection);
 
         if (session == null) {
           return Response(401, body: json.encode({"error": "invalid-credentials"}),
@@ -92,7 +89,7 @@ class UserRouter {
       // TODO: Send email to user that their email has been verified
       // Create new session for user
       LoginSession session =
-          await LoginSession.fromUser(user, serviceCollection);
+          await LoginSession.fromUser(user, request, serviceCollection);
 
       // Let's write the user and remove the userVerify
       await isar.writeTxn(() async {

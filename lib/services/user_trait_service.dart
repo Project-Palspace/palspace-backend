@@ -14,7 +14,7 @@ class UserTraitService {
     final isar = serviceCollection.get<Isar>();
     final userTraits = await isar.userTraits
         .filter()
-        .user((q) => q.uuidEqualTo(user.uuid))
+        .user((q) => q.idEqualTo(user.id))
         .findAll();
     final userTraitValues = userTraits.map((e) => e.trait).toList();
     for (final trait in traits) {
@@ -28,7 +28,7 @@ class UserTraitService {
     final isar = serviceCollection.get<Isar>();
     final userTraits = await isar.userTraits
         .filter()
-        .user((q) => q.uuidEqualTo(user.uuid))
+        .user((q) => q.idEqualTo(user.id))
         .findAll();
     final userTraitValues = userTraits.map((e) => e.trait).toList();
     for (final trait in userTraitValues) {

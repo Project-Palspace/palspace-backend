@@ -16,7 +16,6 @@ import 'package:palspace_backend/routes/models/register_request.dart';
 import 'package:palspace_backend/services/mail_service.dart';
 import 'package:palspace_backend/services/service_collection.dart';
 import 'package:palspace_backend/utilities/utilities.dart';
-import 'package:uuid/uuid.dart';
 
 part 'user.g.dart';
 
@@ -26,9 +25,6 @@ class User {
 
   @Index(unique: true)
   String? username;
-
-  @Index(unique: true)
-  String? uuid;
 
   @Index(unique: true)
   String? email;
@@ -46,7 +42,6 @@ class User {
 
   dynamic toJson() {
     return {
-      'uuid': uuid,
       'username': username,
       'email': email,
       'details': facts?.toJson(),
@@ -90,9 +85,7 @@ class User {
 
     // Hash password
     final hashedPassword = Crypt.sha256(body.password);
-    const uuid = Uuid();
     final finalUser = User()
-      ..uuid = uuid.v5(Uuid.NAMESPACE_URL, body.username).toString()
       ..username = body.username
       ..email = body.email
       ..hashedPassword = hashedPassword.hash

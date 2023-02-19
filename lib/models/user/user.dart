@@ -44,7 +44,8 @@ class User {
     return {
       'username': username,
       'email': email,
-      'details': facts?.toJson(),
+      'details': details?.toJson(),
+      'facts': facts?.toJson(),
       'traits': traits.toList()
     };
   }

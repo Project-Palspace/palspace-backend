@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:crypt/crypt.dart';
+import 'package:dotenv/dotenv.dart';
 import 'package:isar/isar.dart';
+import 'package:minio_new/src/minio.dart';
 import 'package:palspace_backend/enums/trait.dart';
 import 'package:palspace_backend/enums/verify_reason.dart';
 import 'package:palspace_backend/exceptions/email_taken_exception.dart';
@@ -35,9 +37,36 @@ class User {
   UserDetails? details;
   UserFacts? facts;
 
+  @ignore
+  Future<String?> get profilePictureUrl async {
+    if (serviceCollection == null) {
+      return null;
+    }
+
+    final env = serviceCollection!.get<DotEnv>();
+    final minio = serviceCollection!.get<Minio>();
+    final bucket = env['PROFILE_PICTURES_BUCKET']!;
+    final url = await minio.presignedGetObject(bucket, '$id');
+    return url;
+  }
+
   final verifyTokens = IsarLinks<UserVerify>();
   final traits = IsarLinks<UserTrait>();
   final loginSessions = IsarLinks<LoginSession>();
+
+  @ignore
+  ServiceCollection? serviceCollection;
+
+  dynamic toJsonAsync() async {
+    return {
+      'username': username,
+      'email': email,
+      'details': details?.toJson(),
+      'facts': facts?.toJson(),
+      'traits': traits.toList(),
+      'profilePictureUrl': await profilePictureUrl,
+    };
+  }
 
   dynamic toJson() {
     return {
@@ -45,7 +74,8 @@ class User {
       'email': email,
       'details': details?.toJson(),
       'facts': facts?.toJson(),
-      'traits': traits.toList()
+      'traits': traits.toList(),
+      'profilePictureUrl': null
     };
   }
 
@@ -123,5 +153,9 @@ class User {
       await isar.users.put(user);
     });
     return user;
+  }
+
+  void populateServiceCollection(ServiceCollection? serviceCollection) {
+    this.serviceCollection = serviceCollection;
   }
 }

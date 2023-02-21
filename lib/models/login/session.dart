@@ -4,12 +4,14 @@ import 'package:isar/isar.dart';
 import 'package:palspace_backend/enums/trait.dart';
 import 'package:palspace_backend/enums/verify_reason.dart';
 import 'package:palspace_backend/exceptions/email_not_verified_exception.dart';
+import 'package:palspace_backend/exceptions/user_suspended_exception.dart';
 import 'package:palspace_backend/models/user/user.dart';
 import 'package:palspace_backend/models/user/user_verify.dart';
 import 'package:palspace_backend/routes/models/login_request.dart';
 import 'package:palspace_backend/services/mail_service.dart';
 import 'package:palspace_backend/services/service_collection.dart';
 import 'package:crypt/crypt.dart';
+import 'package:palspace_backend/services/user_trait_service.dart';
 import 'package:palspace_backend/utilities/request_utils.dart';
 import 'package:palspace_backend/utilities/utilities.dart';
 import 'package:shelf/shelf.dart';
@@ -44,6 +46,7 @@ class LoginSession {
   static Future<LoginSession?> fromLoginRequest(
       Request request, ServiceCollection serviceCollection) async {
     final loginRequest = await RequestUtils.bodyFromRequest<LoginRequest>(request);
+    final traitService = serviceCollection.get<UserTraitService>();
     final isar = serviceCollection.get<Isar>();
     final user =
         await isar.users.where().emailEqualTo(loginRequest.email).findFirst();
@@ -59,7 +62,7 @@ class LoginSession {
     }
 
     // Check if user has EMAIL_VERIFIED trait
-    if (!user.hasTrait(Trait.EMAIL_VERIFIED)) {
+    if (!traitService.hasTrait(user, Trait.EMAIL_VERIFIED)) {
       // Check if user still has valid verify token
       final userVerify = await isar.userVerifys.filter().reasonEqualTo(VerifyReason.DELETE_VERIFY.name).findFirst();
 
@@ -80,6 +83,10 @@ class LoginSession {
       }
 
       throw EmailNotVerifiedException();
+    }
+
+    if (traitService.hasTrait(user, Trait.SUSPENDED)) {
+      throw UserSuspendedException();
     }
 
     final ipAddress = (request.context['shelf.io.connection_info'] as HttpConnectionInfo).remoteAddress.address;

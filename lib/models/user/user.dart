@@ -16,6 +16,7 @@ import 'package:palspace_backend/models/user/user_verify.dart';
 import 'package:palspace_backend/routes/models/register_request.dart';
 import 'package:palspace_backend/services/mail_service.dart';
 import 'package:palspace_backend/services/service_collection.dart';
+import 'package:palspace_backend/services/user_trait_service.dart';
 
 part 'user.g.dart';
 
@@ -66,8 +67,9 @@ class User {
 
     // Check if the username is taken and attached to a user with the trait, EMAIL_VERIFIED.
     final user2 = await isar.users.where().usernameEqualTo(body.username).findFirst();
+    final traitService = serviceCollection.get<UserTraitService>();
     if (user2 != null) {
-      if (user2.hasTrait(Trait.EMAIL_VERIFIED)) {
+      if (traitService.hasTrait(user2, Trait.EMAIL_VERIFIED)) {
         throw UsernameTakenException(json.encode({"error": "username-in-use"}));
       } else {
         // Check if the user has a verify token that is not expired
@@ -102,14 +104,10 @@ class User {
 
     // Hash password
     final finalUser = await User.createFromRegisterRequest(body, serviceCollection);
-    final token = await UserVerify.generateToken(isar, finalUser, VerifyReason.EMAIL_VERIFY);
+    final token = await UserVerify.generateToken(isar, finalUser, VerifyReason.EMAIL_VERIFY, tokenLength: 9);
     final mailService = serviceCollection.get<MailService>();
     await mailService.sendMail(body.email, "Verify email",
         "Please verify your email: https://api.palspace.dev/user/verify-email?t=${token.token}");
-  }
-
-  hasTrait(Trait trait) {
-    return traits.any((element) => element.trait == trait.name);
   }
 
   static Future<User> createFromRegisterRequest(RegisterRequest body, ServiceCollection serviceCollection) async {

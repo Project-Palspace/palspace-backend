@@ -18,8 +18,9 @@ class UserVerify {
   @Backlink(to: 'verifyTokens')
   final user = IsarLink<User>();
 
-  static Future<UserVerify> generateToken(Isar isar, User user, VerifyReason verifyReason) async {
-    final token = Utilities.generateRandomString(32);
+  static Future<UserVerify> generateToken(Isar isar, User user, VerifyReason verifyReason,
+      {int tokenLength = 32}) async {
+    final token = Utilities.generateRandomString(tokenLength).toLowerCase();
     final verify = UserVerify()
       ..token = token
       ..reason = verifyReason.name

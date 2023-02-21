@@ -7,6 +7,7 @@ import 'package:palspace_backend/exceptions/email_not_verified_exception.dart';
 import 'package:palspace_backend/exceptions/email_taken_exception.dart';
 import 'package:palspace_backend/exceptions/email_validation_exception.dart';
 import 'package:palspace_backend/exceptions/password_validation_exception.dart';
+import 'package:palspace_backend/exceptions/user_suspended_exception.dart';
 import 'package:palspace_backend/exceptions/username_taken_exception.dart';
 import 'package:palspace_backend/models/login/session.dart';
 import 'package:palspace_backend/models/user/user.dart';
@@ -41,6 +42,10 @@ class UserRouter {
       } on EmailNotVerifiedException {
         return Response(401,
             body: json.encode({"error": "email-not-verified"}),
+            headers: {'Content-Type': 'application/json'});
+      } on UserSuspendedException {
+        return Response(401,
+            body: json.encode({"error": "user-suspended"}),
             headers: {'Content-Type': 'application/json'});
       }
     });

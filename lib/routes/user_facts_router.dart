@@ -7,6 +7,7 @@ import 'package:palspace_backend/models/user/user_facts.dart';
 import 'package:palspace_backend/models/user/user_trait.dart';
 import 'package:palspace_backend/routes/models/user_facts_request.dart';
 import 'package:palspace_backend/services/service_collection.dart';
+import 'package:palspace_backend/services/user_trait_service.dart';
 import 'package:palspace_backend/utilities/request_utils.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
@@ -50,8 +51,9 @@ class UserFactsRouter {
     router.post('/', (Request request) async {
       final user = await RequestUtils.userFromRequest(request);
       final isar = serviceCollection.get<Isar>();
+      final traitService = serviceCollection.get<UserTraitService>();
 
-      if (user.hasTrait(Trait.ACCOUNT_DETAILS_LOCKED)) {
+      if (traitService.hasTrait(user, Trait.ACCOUNT_DETAILS_LOCKED)) {
         return Response.forbidden(json.encode({
           'error': 'Account details locked',
         }));

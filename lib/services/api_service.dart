@@ -52,10 +52,10 @@ class ApiService {
   }
 
   authenticatedRouter(Router router,
-          {List<Trait> requiredTraits = const []}) async =>
+          {List<Trait> requiredTraits = const [], List<Trait> requiredMissingTraits = const [ Trait.SUSPENDED]}) async =>
       Pipeline()
           .addMiddleware(await authenticateMiddleware(serviceCollection,
-              requiredTraits: requiredTraits))
+              requiredTraits: requiredTraits, requiredMissingTraits: requiredMissingTraits))
           .addHandler(router);
 }
 

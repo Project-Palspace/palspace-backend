@@ -107,13 +107,6 @@ class UserRouter {
         LoginSession session =
         await LoginSession.fromUser(user, request, serviceCollection);
 
-        // Let's write the user and remove the userVerify
-        await isar.writeTxn(() async {
-          await isar.userVerifys.delete(userVerify.id);
-          await isar.userTraits.put(trait);
-          await user.traits.save();
-        });
-
         return Response(200,
           body: json.encode(session.toJson()),
           headers: {'Content-Type': 'application/json'});

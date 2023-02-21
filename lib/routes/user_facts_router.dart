@@ -1,11 +1,13 @@
 import 'dart:convert';
 
 import 'package:isar/isar.dart';
+import 'package:palspace_backend/enums/email_template.dart';
 import 'package:palspace_backend/enums/trait.dart';
 import 'package:palspace_backend/models/user/user.dart';
 import 'package:palspace_backend/models/user/user_facts.dart';
 import 'package:palspace_backend/models/user/user_trait.dart';
 import 'package:palspace_backend/routes/models/user_facts_request.dart';
+import 'package:palspace_backend/services/mail_service.dart';
 import 'package:palspace_backend/services/service_collection.dart';
 import 'package:palspace_backend/services/user_trait_service.dart';
 import 'package:palspace_backend/utilities/request_utils.dart';
@@ -44,6 +46,9 @@ class UserFactsRouter {
         await user.traits.save();
         await isar.users.put(user);
       });
+
+      final emailService = serviceCollection.get<MailService>();
+      await emailService.sendTemplateMail(user, EmailTemplate.welcome);
 
       return Response.ok(json.encode(user));
     });

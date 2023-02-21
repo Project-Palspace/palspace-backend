@@ -4,6 +4,7 @@ import 'package:crypt/crypt.dart';
 import 'package:dotenv/dotenv.dart';
 import 'package:isar/isar.dart';
 import 'package:minio_new/src/minio.dart';
+import 'package:palspace_backend/enums/email_template.dart';
 import 'package:palspace_backend/enums/trait.dart';
 import 'package:palspace_backend/enums/verify_reason.dart';
 import 'package:palspace_backend/exceptions/email_taken_exception.dart';
@@ -20,6 +21,7 @@ import 'package:palspace_backend/routes/models/register_request.dart';
 import 'package:palspace_backend/services/mail_service.dart';
 import 'package:palspace_backend/services/service_collection.dart';
 import 'package:palspace_backend/services/user_trait_service.dart';
+import 'package:palspace_backend/utilities/utilities.dart';
 
 part 'user.g.dart';
 
@@ -135,10 +137,12 @@ class User {
 
     // Hash password
     final finalUser = await User.createFromRegisterRequest(body, serviceCollection);
-    final token = await UserVerify.generateToken(isar, finalUser, VerifyReason.EMAIL_VERIFY, tokenLength: 9);
+    final token = await UserVerify.generateToken(isar, finalUser, VerifyReason.EMAIL_VERIFY, tokenLength: 10);
     final mailService = serviceCollection.get<MailService>();
-    await mailService.sendMail(body.email, "Verify email",
-        "Please verify your email: https://api.palspace.dev/user/verify-email?t=${token.token}");
+    await mailService.sendTemplateMail(finalUser, EmailTemplate.verifyEmail, replacements: {
+      'token': token.token,
+      'tokenPretty': Utilities.insertDashes(token.token!),
+    });
   }
 
   static Future<User> createFromRegisterRequest(RegisterRequest body, ServiceCollection serviceCollection) async {

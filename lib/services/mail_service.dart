@@ -1,6 +1,9 @@
 import 'package:dotenv/dotenv.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
+import 'package:palspace_backend/enums/email_template.dart';
+import 'package:palspace_backend/models/user/user.dart';
+import 'package:palspace_backend/utilities/utilities.dart';
 
 class MailService {
   final DotEnv env;
@@ -11,9 +14,23 @@ class MailService {
   }
 
   // TODO: Maybe make a scheduler to send mails?
-  // TODO: Templates?
 
-  Future<SendReport?> sendMail(
+  Future<SendReport?> sendTemplateMail(User user, EmailTemplate template,
+      {Map<String, String?> replacements = const {}}) async {
+    final finalReplacements = {
+      "email": user.email,
+      "firstName": user.facts?.firstName,
+      "lastName": user.facts?.lastName,
+    };
+
+    finalReplacements.addAll(replacements);
+
+    // Load template from file
+    final html = await template.loadAndReplace(finalReplacements);
+    return _sendMail(user.email!, Utilities.convertCamelCaseToReadable(template.name), html);
+  }
+
+  Future<SendReport?> _sendMail(
       String recipient, String title, String html) async {
     SmtpServer options;
     if (env["DEBUG"] == "TRUE") {

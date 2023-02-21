@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:darq/darq.dart';
 import 'package:isar/isar.dart';
+import 'package:palspace_backend/enums/email_template.dart';
 import 'package:palspace_backend/enums/verify_reason.dart';
 import 'package:palspace_backend/models/login/session.dart';
 import 'package:palspace_backend/models/user/user.dart';
@@ -11,6 +12,7 @@ import 'package:palspace_backend/models/user/user_viewed_by.dart';
 import 'package:palspace_backend/services/mail_service.dart';
 import 'package:palspace_backend/services/service_collection.dart';
 import 'package:palspace_backend/utilities/request_utils.dart';
+import 'package:palspace_backend/utilities/utilities.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
@@ -67,13 +69,14 @@ class UserManagementRouter {
 
       // Create a deletion verify token and store it
       final isar = serviceCollection.get<Isar>();
-      final token = await UserVerify.generateToken(isar, user, VerifyReason.DELETE_VERIFY);
+      final token = await UserVerify.generateToken(isar, user, VerifyReason.DELETE_VERIFY, tokenLength: 16);
 
-      //TODO: Use template for email verification
       // Send email to user to verify request of account deletion
       final mailService = serviceCollection.get<MailService>();
-      await mailService.sendMail(user.email!, "Verify account deletion",
-          "Please verify account deletion: https://api.palspace.dev/user/verify-delete?t=${token.token}");
+      await mailService.sendTemplateMail(user, EmailTemplate.verifyAccountDeletion, replacements: {
+        'tokenPretty': Utilities.insertDashes(token.token!),
+        'token': '${token.token?.substring(0, 5)}-${token.token?.substring(5)}',
+      });
 
       return Response(201);
     });

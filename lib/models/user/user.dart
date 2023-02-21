@@ -24,14 +24,11 @@ class User {
   Id id = Isar.autoIncrement;
 
   @Index(unique: true)
-  String? username;
-
-  @Index(unique: true)
   String? email;
+  String? username;
 
   String? hashedPassword;
   String? salt;
-
 
   UserDetails? details;
   UserFacts? facts;
@@ -66,11 +63,28 @@ class User {
       throw EmailTakenException(json.encode({"error": "email-in-use"}));
     }
 
-    // Check if username is taken
-    final user2 =
-        await isar.users.where().usernameEqualTo(body.username).findFirst();
+    // Check if the username is taken and attached to a user with the trait, EMAIL_VERIFIED.
+    final user2 = await isar.users.where().usernameEqualTo(body.username).findFirst();
     if (user2 != null) {
-      throw UsernameTakenException(json.encode({"error": "username-taken"}));
+      if (user2.hasTrait(Trait.EMAIL_VERIFIED)) {
+        throw UsernameTakenException(json.encode({"error": "username-in-use"}));
+      } else {
+        // Check if the user has a verify token that is not expired.
+        final userVerify = user2.verifyToken.value;
+        if (userVerify != null) {
+          if (userVerify.expiresAt!.isAfter(DateTime.now())) {
+            throw UsernameTakenException(json.encode({"error": "username-in-use"}));
+          }
+        }
+
+        // If the user has not verified their email, delete the user and continue with the registration.
+        await isar.writeTxn(() async {
+          if (userVerify != null) {
+            await isar.userVerifys.delete(userVerify.id);
+          }
+          await isar.users.delete(user2.id);
+        });
+      }
     }
 
     // Check if password is long enough and has at least a digit and a letter

@@ -5,6 +5,7 @@ import 'package:palspace_backend/models/login/session.dart';
 import 'package:palspace_backend/models/user/user.dart';
 import 'package:palspace_backend/models/user/user_trait.dart';
 import 'package:palspace_backend/models/user/user_verify.dart';
+import 'package:palspace_backend/models/user/user_viewed_by.dart';
 import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/services/mail_service.dart';
 import 'package:palspace_backend/services/service_collection.dart';
@@ -21,6 +22,7 @@ void main() async {
     UserTraitSchema,
     UserVerifySchema,
     LoginSessionSchema,
+    UserViewsSchema
   ]);
 
   // Initialize services

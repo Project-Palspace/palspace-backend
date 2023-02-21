@@ -92,21 +92,21 @@ class UserRouter {
       User user = userVerify.user.value as User;
       user.traits.add(trait);
 
-      // TODO: Send email to user that their email has been verified
-      // Create new session for user
-      LoginSession session =
-          await LoginSession.fromUser(user, request, serviceCollection);
-
-      // Let's write the user and remove the userVerify
-      await isar.writeTxn(() async {
-        await isar.userVerifys.delete(userVerify.id);
-        await isar.userTraits.put(trait);
-        await user.traits.save();
-      });
-
       if (! userAgent!.contains('Palspace')) {
         return Response.ok('Your email is now verified, you can now login in the app.');
       } else {
+        // TODO: Send email to user that their email has been verified
+        // Create new session for user
+        LoginSession session =
+        await LoginSession.fromUser(user, request, serviceCollection);
+
+        // Let's write the user and remove the userVerify
+        await isar.writeTxn(() async {
+          await isar.userVerifys.delete(userVerify.id);
+          await isar.userTraits.put(trait);
+          await user.traits.save();
+        });
+
         return Response(200,
           body: json.encode(session.toJson()),
           headers: {'Content-Type': 'application/json'});

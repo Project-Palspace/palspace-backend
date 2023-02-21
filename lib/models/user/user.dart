@@ -15,6 +15,7 @@ import 'package:palspace_backend/models/user/user_details.dart';
 import 'package:palspace_backend/models/user/user_facts.dart';
 import 'package:palspace_backend/models/user/user_trait.dart';
 import 'package:palspace_backend/models/user/user_verify.dart';
+import 'package:palspace_backend/models/user/user_viewed_by.dart';
 import 'package:palspace_backend/routes/models/register_request.dart';
 import 'package:palspace_backend/services/mail_service.dart';
 import 'package:palspace_backend/services/service_collection.dart';
@@ -157,5 +158,19 @@ class User {
 
   void populateServiceCollection(ServiceCollection? serviceCollection) {
     this.serviceCollection = serviceCollection;
+  }
+
+  Future markViewed(User viewer) async {
+    final isar = serviceCollection!.get<Isar>();
+    final userViewedBy = UserViews()
+      ..dateTime = DateTime.now()
+      ..subject.value = this
+      ..viewedBy.value = viewer;
+
+    await isar.writeTxn(() async {
+      await isar.userViews.put(userViewedBy);
+      await userViewedBy.subject.save();
+      await userViewedBy.viewedBy.save();
+    });
   }
 }

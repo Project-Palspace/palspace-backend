@@ -76,17 +76,21 @@ class UserDetailsRouter {
     router.get('/<username>', (Request request, String username) async {
       // Get user based on username
       final isar = serviceCollection.get<Isar>();
-      final user = isar.users.where().usernameEqualTo(username).findFirstSync();
+      final subject = isar.users.where().usernameEqualTo(username).findFirstSync();
+      final viewer = await RequestUtils.userFromRequest(request);
 
-      //TODO: Log that the requesting user has requested to view another user's details
-
-      if (user == null) {
+      if (subject == null) {
         return Response.notFound('No user found with username $username');
       }
 
-      user.populateServiceCollection(serviceCollection);
+      subject.populateServiceCollection(serviceCollection);
 
-      final userJson = await user.toJsonAsync() as Map<String, dynamic>;
+      // If the viewer is not the subject, mark the subject as viewed by the viewer
+      if (subject.id != viewer.id) {
+        subject.markViewed(viewer);
+      }
+
+      final userJson = await subject.toJsonAsync() as Map<String, dynamic>;
       userJson.remove('email');
       return Response.ok(json.encode(userJson));
     });

@@ -1,11 +1,13 @@
 import 'dart:convert';
 
+import 'package:darq/darq.dart';
 import 'package:isar/isar.dart';
 import 'package:palspace_backend/enums/verify_reason.dart';
 import 'package:palspace_backend/models/login/session.dart';
 import 'package:palspace_backend/models/user/user.dart';
 import 'package:palspace_backend/models/user/user_trait.dart';
 import 'package:palspace_backend/models/user/user_verify.dart';
+import 'package:palspace_backend/models/user/user_viewed_by.dart';
 import 'package:palspace_backend/services/mail_service.dart';
 import 'package:palspace_backend/services/service_collection.dart';
 import 'package:palspace_backend/utilities/request_utils.dart';
@@ -118,6 +120,10 @@ class UserManagementRouter {
       user.verifyTokens.toList().forEach((element) async {
         await isar.writeTxn(() => isar.userVerifys.delete(element.id));
       });
+
+      // Delete all user views
+      final views = await isar.userViews.filter().subject((q) => q.idEqualTo(user.id)).findAll();
+      await isar.writeTxn(() => isar.userViews.deleteAll(views.select((e, index) => e.id).toList()));
 
       await isar.writeTxn(() => isar.users.delete(user.id));
       return Response(204);

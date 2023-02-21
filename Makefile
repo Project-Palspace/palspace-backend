@@ -33,8 +33,10 @@ set-hosts:
 	echo "127.0.0.1    proxy.palspace.dev" | sudo tee -a /etc/hosts
 
 update:
+	make down
 	git pull
-	make dev
+	make build
+	make up
 
 import-certs:
 	docs/certs.sh

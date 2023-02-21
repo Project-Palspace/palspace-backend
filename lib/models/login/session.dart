@@ -64,7 +64,7 @@ class LoginSession {
     // Check if user has EMAIL_VERIFIED trait
     if (!traitService.hasTrait(user, Trait.EMAIL_VERIFIED)) {
       // Check if user still has valid verify token
-      final userVerify = await isar.userVerifys.filter().reasonEqualTo(VerifyReason.DELETE_VERIFY.name).findFirst();
+      final userVerify = await isar.userVerifys.filter().reasonEqualTo(VerifyReason.EMAIL_VERIFY.name).findFirst();
 
       if (userVerify == null) {
         // Create new user verify token

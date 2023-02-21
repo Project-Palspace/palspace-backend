@@ -92,6 +92,13 @@ class UserRouter {
       User user = userVerify.user.value as User;
       user.traits.add(trait);
 
+      // Let's write the user and remove the userVerify
+      await isar.writeTxn(() async {
+        await isar.userVerifys.delete(userVerify.id);
+        await isar.userTraits.put(trait);
+        await user.traits.save();
+      });
+
       if (! userAgent!.contains('Palspace')) {
         return Response.ok('Your email is now verified, you can now login in the app.');
       } else {

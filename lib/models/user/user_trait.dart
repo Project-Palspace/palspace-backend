@@ -10,6 +10,7 @@ class UserTrait {
 
   String? trait;
 
+  @Index()
   @Backlink(to: 'traits')
   final user = IsarLink<User>();
 

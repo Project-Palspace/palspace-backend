@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:isar/isar.dart';
 import 'package:palspace_backend/enums/trait.dart';
+import 'package:palspace_backend/enums/verify_reason.dart';
 import 'package:palspace_backend/exceptions/email_not_verified_exception.dart';
 import 'package:palspace_backend/models/user/user.dart';
 import 'package:palspace_backend/models/user/user_verify.dart';
@@ -60,7 +61,7 @@ class LoginSession {
     // Check if user has EMAIL_VERIFIED trait
     if (!user.hasTrait(Trait.EMAIL_VERIFIED)) {
       // Check if user still has valid verify token
-      final userVerify = user.verifyToken.value;
+      final userVerify = await isar.userVerifys.filter().reasonEqualTo(VerifyReason.DELETE_VERIFY.name).findFirst();
 
       if (userVerify == null) {
         // Create new user verify token
@@ -105,21 +106,14 @@ class LoginSession {
   static Future<void> generateAndSendNewVerifyToken(
       User user, Isar isar, ServiceCollection serviceCollection) async {
     // Create new user verify token
-    final newUserVerify = UserVerify()
-      ..token = Utilities.generateRandomString(12)
-      ..expiresAt = DateTime.now().add(Duration(days: 1))
-      ..user.value = user;
-
-    // Save the new user verify token
-    await isar.writeTxn(() async {
-      await isar.userVerifys.put(newUserVerify);
-      await user.verifyToken.save();
-    });
+    final newToken = await UserVerify.generateToken(isar, user, VerifyReason.EMAIL_VERIFY);
 
     // Send new email verification email
     final mailService = serviceCollection.get<MailService>();
+
+    //TODO: Use template for email verification
     await mailService.sendMail(user.email!, "Verify email",
-        "Please verify your email: https://api.palspace.dev/user/verify-email?t=${newUserVerify.token}");
+        "Please verify your email: https://api.palspace.dev/user/verify-email?t=${newToken.token}");
   }
 
   static fromUser(User user, Request? request, ServiceCollection serviceCollection) {

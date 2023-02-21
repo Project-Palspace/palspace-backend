@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:isar/isar.dart';
 import 'package:palspace_backend/enums/trait.dart';
+import 'package:palspace_backend/enums/verify_reason.dart';
 import 'package:palspace_backend/exceptions/email_not_verified_exception.dart';
 import 'package:palspace_backend/exceptions/email_taken_exception.dart';
 import 'package:palspace_backend/exceptions/email_validation_exception.dart';
@@ -66,7 +67,7 @@ class UserRouter {
       final isar = serviceCollection.get<Isar>();
       final userAgent = request.headers['user-agent'];
       final userVerify =
-          await isar.userVerifys.filter().tokenEqualTo(token).findFirst();
+          await isar.userVerifys.filter().tokenEqualTo(token).reasonEqualTo(VerifyReason.EMAIL_VERIFY.name).findFirst();
 
       if (userVerify == null) {
         return Response(404);

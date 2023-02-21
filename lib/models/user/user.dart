@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:crypt/crypt.dart';
 import 'package:isar/isar.dart';
 import 'package:palspace_backend/enums/trait.dart';
+import 'package:palspace_backend/enums/verify_reason.dart';
 import 'package:palspace_backend/exceptions/email_taken_exception.dart';
 import 'package:palspace_backend/exceptions/email_validation_exception.dart';
 import 'package:palspace_backend/exceptions/password_validation_exception.dart';
@@ -15,7 +16,6 @@ import 'package:palspace_backend/models/user/user_verify.dart';
 import 'package:palspace_backend/routes/models/register_request.dart';
 import 'package:palspace_backend/services/mail_service.dart';
 import 'package:palspace_backend/services/service_collection.dart';
-import 'package:palspace_backend/utilities/utilities.dart';
 
 part 'user.g.dart';
 
@@ -25,6 +25,7 @@ class User {
 
   @Index(unique: true)
   String? email;
+  @Index(caseSensitive: true)
   String? username;
 
   String? hashedPassword;
@@ -33,7 +34,7 @@ class User {
   UserDetails? details;
   UserFacts? facts;
 
-  final verifyToken = IsarLink<UserVerify>();
+  final verifyTokens = IsarLinks<UserVerify>();
   final traits = IsarLinks<UserTrait>();
   final loginSessions = IsarLinks<LoginSession>();
 
@@ -69,9 +70,10 @@ class User {
       if (user2.hasTrait(Trait.EMAIL_VERIFIED)) {
         throw UsernameTakenException(json.encode({"error": "username-in-use"}));
       } else {
-        // Check if the user has a verify token that is not expired.
-        final userVerify = user2.verifyToken.value;
-        if (userVerify != null) {
+        // Check if the user has a verify token that is not expired
+        final userVerify = await isar.userVerifys.filter().reasonEqualTo(VerifyReason.DELETE_VERIFY.name).findFirst();
+
+        if (userVerify != null && userVerify.reason == VerifyReason.EMAIL_VERIFY.name) {
           if (userVerify.expiresAt!.isAfter(DateTime.now())) {
             throw UsernameTakenException(json.encode({"error": "username-in-use"}));
           }
@@ -99,29 +101,29 @@ class User {
     }
 
     // Hash password
-    final hashedPassword = Crypt.sha256(body.password);
-    final finalUser = User()
-      ..username = body.username
-      ..email = body.email
-      ..hashedPassword = hashedPassword.hash
-      ..salt = hashedPassword.salt;
-    final userVerify = UserVerify()
-      ..user.value = finalUser
-      ..expiresAt = DateTime.now().add(Duration(hours: 1))
-      ..token = Utilities.generateRandomString(12);
-
-    await isar.writeTxn(() async {
-      await isar.users.put(finalUser);
-      await isar.userVerifys.put(userVerify);
-      await userVerify.user.save();
-    });
-
+    final finalUser = await User.createFromRegisterRequest(body, serviceCollection);
+    final token = await UserVerify.generateToken(isar, finalUser, VerifyReason.EMAIL_VERIFY);
     final mailService = serviceCollection.get<MailService>();
     await mailService.sendMail(body.email, "Verify email",
-        "Please verify your email: https://api.palspace.dev/user/verify-email?t=${userVerify.token}");
+        "Please verify your email: https://api.palspace.dev/user/verify-email?t=${token.token}");
   }
 
   hasTrait(Trait trait) {
     return traits.any((element) => element.trait == trait.name);
+  }
+
+  static Future<User> createFromRegisterRequest(RegisterRequest body, ServiceCollection serviceCollection) async {
+    final isar = serviceCollection.get<Isar>();
+    final hashedPassword = Crypt.sha256(body.password);
+    final user = User()
+      ..username = body.username
+      ..email = body.email
+      ..hashedPassword = hashedPassword.hash
+      ..salt = hashedPassword.salt;
+
+    await isar.writeTxn(() async {
+      await isar.users.put(user);
+    });
+    return user;
   }
 }

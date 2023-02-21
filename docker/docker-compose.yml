@@ -48,17 +48,14 @@ services:
           - obj
 
   mail:
-    platform: linux/x86_64
-    image: mailhog/mailhog
+    image: dockage/mailcatcher
     hostname: "mail.palspace.dev"
     container_name: palspace-smtp
     logging:
       driver: 'none'
-    environment:
-      - MH_HOSTNAME=mail.palspace.dev
     ports:
       - "1025:1025"
-      - "8025:8025"
+      - "1080:1080"
     networks:
       main:
         aliases:

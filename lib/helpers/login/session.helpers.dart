@@ -14,7 +14,6 @@ import 'package:palspace_backend/routes/models/login_request.dart';
 import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/services/mail_service.dart';
 import 'package:crypt/crypt.dart';
-import 'package:palspace_backend/utilities/request_utils.dart';
 import 'package:palspace_backend/utilities/utilities.dart';
 import 'package:shelf/shelf.dart';
 
@@ -23,11 +22,15 @@ import 'package:palspace_backend/models/login/session.dart';
 extension LoginSessionEx on LoginSession {}
 
 class LoginSession_ {
+  static Future<LoginSession> fromRequest(Request request) async {
+    return request.context['session'] as LoginSession;
+  }
+
   static Future<LoginSession?> fromLoginRequest(Request request) async {
-    final loginRequest =
-        await RequestUtils.bodyFromRequest<LoginRequest>(request);
+    final loginRequest = await LoginRequest.fromRequest(request);
     final isar = serviceCollection.get<Isar>();
-    final user = await isar.users.where().emailEqualTo(loginRequest.email).findFirst();
+    final user =
+        await isar.users.where().emailEqualTo(loginRequest.email).findFirst();
 
     if (user == null) {
       return null;

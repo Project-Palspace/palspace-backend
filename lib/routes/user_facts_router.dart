@@ -11,7 +11,6 @@ import 'package:palspace_backend/models/user/user_trait.dart';
 import 'package:palspace_backend/routes/models/user_facts_request.dart';
 import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/services/mail_service.dart';
-import 'package:palspace_backend/utilities/request_utils.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
@@ -30,7 +29,7 @@ class UserFactsRouter {
       }
 
       // Add user with new details
-      final body = await RequestUtils.bodyFromRequest<UserFactsRequest>(request);
+      final body = await UserFactsRequest.fromRequest(request);
       user.facts = UserFacts()
         ..firstName = body.firstName
         ..lastName = body.lastName
@@ -68,7 +67,7 @@ class UserFactsRouter {
       }
 
       // Update user with new details
-      final body = await RequestUtils.bodyFromRequest<UserFactsRequest>(request);
+      final body = await UserFactsRequest.fromRequest(request);
       user.facts = UserFacts()
         ..firstName = body.firstName
         ..lastName = body.lastName

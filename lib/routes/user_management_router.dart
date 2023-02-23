@@ -4,6 +4,7 @@ import 'package:darq/darq.dart';
 import 'package:isar/isar.dart';
 import 'package:palspace_backend/enums/email_template.dart';
 import 'package:palspace_backend/enums/verify_reason.dart';
+import 'package:palspace_backend/helpers/login/session.helpers.dart';
 import 'package:palspace_backend/helpers/user/user.helpers.dart';
 import 'package:palspace_backend/models/login/session.dart';
 import 'package:palspace_backend/models/user/user.dart';
@@ -13,7 +14,6 @@ import 'package:palspace_backend/helpers/user/user_verify.helpers.dart';
 import 'package:palspace_backend/models/user/user_viewed_by.dart';
 import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/services/mail_service.dart';
-import 'package:palspace_backend/utilities/request_utils.dart';
 import 'package:palspace_backend/utilities/utilities.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
@@ -23,7 +23,7 @@ class UserManagementRouter {
     final router = Router();
 
     router.get('/logout', (Request request) async {
-      final session = await RequestUtils.sessionFromRequest(request);
+      final session = await LoginSession_.fromRequest(request);
 
       // Remove session from database
       final isar = serviceCollection.get<Isar>();
@@ -33,7 +33,7 @@ class UserManagementRouter {
     });
 
     router.get('/logout-all', (Request request) async {
-      final session = await RequestUtils.sessionFromRequest(request);
+      final session = await LoginSession_.fromRequest(request);
 
       // Remove session from database
       final isar = serviceCollection.get<Isar>();

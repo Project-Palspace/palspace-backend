@@ -10,7 +10,6 @@ import 'package:palspace_backend/helpers/user/user.helpers.dart';
 import 'package:palspace_backend/models/user/user_details.dart';
 import 'package:palspace_backend/routes/models/user_details.dart';
 import 'package:palspace_backend/services/api_service.dart';
-import 'package:palspace_backend/utilities/request_utils.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
@@ -25,7 +24,7 @@ class UserDetailsRouter {
 
     router.post('/', (Request request) async {
       final user = await User_.fromRequest(request);
-      final body = await RequestUtils.bodyFromRequest<UserDetailsRequest>(request);
+      final body = await UserDetailsRequest.fromRequest(request);
       final isar = serviceCollection.get<Isar>();
 
       user.details ??= UserDetails();

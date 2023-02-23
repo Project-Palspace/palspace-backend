@@ -74,7 +74,6 @@ class LoginSession_ {
     }
 
     final session = await LoginSession_.fromUser(user, request);
-    final sessionAgain = await isar.loginSessions.filter().tokenEqualTo(session.token).findFirst();
     return session;
   }
 

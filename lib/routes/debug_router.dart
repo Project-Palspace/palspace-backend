@@ -4,6 +4,7 @@ import 'package:isar/isar.dart';
 import 'package:palspace_backend/enums/trait.dart';
 import 'package:palspace_backend/exceptions/missing_trait_exception.dart';
 import 'package:palspace_backend/exceptions/unexpected_trait_exception.dart';
+import 'package:palspace_backend/helpers/login/session.helpers.dart';
 import 'package:palspace_backend/helpers/user/user.helpers.dart';
 import 'package:palspace_backend/helpers/user/user.trait-helpers.dart';
 import 'package:palspace_backend/models/login/session.dart';
@@ -30,6 +31,15 @@ class DebugRouter {
         "loginSessions": await isar.loginSessions.where().findAll(),
       };
       return Response.ok(json.encode(details),
+          headers: {'Content-Type': 'application/json'});
+    });
+
+    router.get('/from-request', (Request request) async {
+      return Response.ok(
+          json.encode({
+            "userFromRequest": await User_.fromRequest(request),
+            "sessionFromRequest": await LoginSession_.fromRequest(request)
+          }),
           headers: {'Content-Type': 'application/json'});
     });
 

@@ -17,3 +17,5 @@ docker/ingress/logs/
 
 # Apple horseshit
 .DS_Store
+isar/*.isar
+isar/*.isar.lock

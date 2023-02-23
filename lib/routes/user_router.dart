@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:isar/isar.dart';
+import 'package:palspace_backend/enums/email_template.dart';
 import 'package:palspace_backend/enums/trait.dart';
 import 'package:palspace_backend/enums/verify_reason.dart';
 import 'package:palspace_backend/exceptions/email_not_verified_exception.dart';
@@ -14,6 +15,7 @@ import 'package:palspace_backend/models/user/user.dart';
 import 'package:palspace_backend/models/user/user_trait.dart';
 import 'package:palspace_backend/models/user/user_verify.dart';
 import 'package:palspace_backend/routes/models/register_request.dart';
+import 'package:palspace_backend/services/mail_service.dart';
 import 'package:palspace_backend/services/service_collection.dart';
 import 'package:palspace_backend/utilities/request_utils.dart';
 import 'package:shelf/shelf.dart';
@@ -99,10 +101,12 @@ class UserRouter {
         await user.traits.save();
       });
 
+      final mailService = serviceCollection.get<MailService>();
+      mailService.sendTemplateMail(user, EmailTemplate.emailVerified);
+
       if (! userAgent!.contains('Palspace')) {
         return Response.ok('Your email is now verified, you can now login in the app.');
       } else {
-        // TODO: Send email to user that their email has been verified
         // Create new session for user
         LoginSession session =
         await LoginSession.fromUser(user, request, serviceCollection);

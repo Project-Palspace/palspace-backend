@@ -11,18 +11,31 @@ import 'package:palspace_backend/exceptions/email_taken_exception.dart';
 import 'package:palspace_backend/exceptions/email_validation_exception.dart';
 import 'package:palspace_backend/exceptions/password_validation_exception.dart';
 import 'package:palspace_backend/exceptions/username_taken_exception.dart';
+import 'package:palspace_backend/helpers/user/user.trait-helpers.dart';
+import 'package:palspace_backend/helpers/user/user_verify.helpers.dart';
+import 'package:palspace_backend/models/login/session.dart';
 import 'package:palspace_backend/models/user/user.dart';
 import 'package:palspace_backend/models/user/user_verify.dart';
-import 'package:palspace_backend/models/user/user_verify.helpers.dart';
 import 'package:palspace_backend/models/user/user_viewed_by.dart';
 import 'package:palspace_backend/routes/models/register_request.dart';
 import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/services/mail_service.dart';
-import 'package:palspace_backend/services/user_trait_service.dart';
 import 'package:palspace_backend/utilities/utilities.dart';
+import 'package:shelf/shelf.dart';
 
 // ignore: camel_case_types
 class User_ {
+
+  static Future<User> fromRequest(Request request) async {
+
+    final session = request.context['session'] as LoginSession;
+
+    if (session.user.value == null) {
+      throw Exception('User not found in session!');
+    }
+
+    return session.user.value!;
+  }
 
   static Future fromRegisterRequest(
       RegisterRequest body) async {
@@ -42,9 +55,8 @@ class User_ {
 
     // Check if the username is taken and attached to a user with the trait, EMAIL_VERIFIED.
     final user2 = await isar.users.where().usernameEqualTo(body.username).findFirst();
-    final traitService = serviceCollection.get<UserTraitService>();
     if (user2 != null) {
-      if (traitService.hasTrait(user2, Trait.EMAIL_VERIFIED)) {
+      if (user2.hasTrait(Trait.EMAIL_VERIFIED)) {
         throw UsernameTakenException(json.encode({"error": "username-in-use"}));
       } else {
         // Check if the user has a verify token that is not expired

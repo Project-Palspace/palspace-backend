@@ -1,7 +1,7 @@
 
 import 'package:isar/isar.dart';
 import 'package:palspace_backend/models/login/session.dart';
-import 'package:palspace_backend/models/user/user.helpers.dart';
+import 'package:palspace_backend/helpers/user/user.helpers.dart';
 import 'package:palspace_backend/models/user/user_details.dart';
 import 'package:palspace_backend/models/user/user_facts.dart';
 import 'package:palspace_backend/models/user/user_trait.dart';

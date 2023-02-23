@@ -10,10 +10,7 @@ class ServiceCollection {
   }
 
   T get<T>() {
-    if (_services.isEmpty) {
-      throw Exception("No services found in ServiceCollection");
-    }
-    if (_services.where((service) => service is T).isEmpty) {
+    if ((_services.isEmpty) || (_services.whereType<T>().isEmpty)) {
       throw Exception("No service of type $T found in ServiceCollection");
     }
 

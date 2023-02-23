@@ -6,7 +6,7 @@ import 'package:image/image.dart' as img;
 import 'package:isar/isar.dart';
 import 'package:minio_new/minio.dart';
 import 'package:palspace_backend/models/user/user.dart';
-import 'package:palspace_backend/models/user/user.helpers.dart';
+import 'package:palspace_backend/helpers/user/user.helpers.dart';
 import 'package:palspace_backend/models/user/user_details.dart';
 import 'package:palspace_backend/routes/models/user_details.dart';
 import 'package:palspace_backend/services/api_service.dart';
@@ -19,12 +19,12 @@ class UserDetailsRouter {
     final router = Router();
 
     router.get('/', (Request request) async {
-      final user = await RequestUtils.userFromRequest(request);
+      final user = await User_.fromRequest(request);
       return Response.ok(json.encode(await user.toJsonAsync()));
     });
 
     router.post('/', (Request request) async {
-      final user = await RequestUtils.userFromRequest(request);
+      final user = await User_.fromRequest(request);
       final body = await RequestUtils.bodyFromRequest<UserDetailsRequest>(request);
       final isar = serviceCollection.get<Isar>();
 
@@ -41,7 +41,7 @@ class UserDetailsRouter {
     });
 
     router.post('/profile-picture', (Request request) async {
-      final user = await RequestUtils.userFromRequest(request);
+      final user = await User_.fromRequest(request);
       final minio = serviceCollection.get<Minio>();
 
       // Read the image from the request
@@ -74,7 +74,7 @@ class UserDetailsRouter {
       // Get user based on username
       final isar = serviceCollection.get<Isar>();
       final subject = isar.users.where().usernameEqualTo(username).findFirstSync();
-      final viewer = await RequestUtils.userFromRequest(request);
+      final viewer = await User_.fromRequest(request);
 
       if (subject == null) {
         return Response.notFound('No user found with username $username');

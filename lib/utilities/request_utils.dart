@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:palspace_backend/models/login/session.dart';
-import 'package:palspace_backend/models/user/user.dart';
 import 'package:palspace_backend/routes/models/login_request.dart';
 import 'package:palspace_backend/routes/models/register_request.dart';
 import 'package:palspace_backend/routes/models/user_details.dart';
@@ -14,16 +13,6 @@ class RequestUtils {
     final json = jsonDecode(content) as Map<String, dynamic>;
     final body = _getBodyFromJson<T>(json);
     return body;
-  }
-
-  static Future<User> userFromRequest(Request request) async {
-    final session = request.context['session'] as LoginSession;
-
-    if (session.user.value == null) {
-      throw Exception('User not found in session!');
-    }
-
-    return session.user.value!;
   }
 
   static Future<LoginSession> sessionFromRequest(Request request) async {

@@ -6,14 +6,14 @@ import 'package:palspace_backend/enums/trait.dart';
 import 'package:palspace_backend/enums/verify_reason.dart';
 import 'package:palspace_backend/exceptions/email_not_verified_exception.dart';
 import 'package:palspace_backend/exceptions/user_suspended_exception.dart';
+import 'package:palspace_backend/helpers/user/user.trait-helpers.dart';
 import 'package:palspace_backend/models/user/user.dart';
 import 'package:palspace_backend/models/user/user_verify.dart';
-import 'package:palspace_backend/models/user/user_verify.helpers.dart';
+import 'package:palspace_backend/helpers/user/user_verify.helpers.dart';
 import 'package:palspace_backend/routes/models/login_request.dart';
 import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/services/mail_service.dart';
 import 'package:crypt/crypt.dart';
-import 'package:palspace_backend/services/user_trait_service.dart';
 import 'package:palspace_backend/utilities/request_utils.dart';
 import 'package:palspace_backend/utilities/utilities.dart';
 import 'package:shelf/shelf.dart';
@@ -26,10 +26,8 @@ class LoginSession_ {
   static Future<LoginSession?> fromLoginRequest(Request request) async {
     final loginRequest =
         await RequestUtils.bodyFromRequest<LoginRequest>(request);
-    final traitService = serviceCollection.get<UserTraitService>();
     final isar = serviceCollection.get<Isar>();
-    final user =
-        await isar.users.where().emailEqualTo(loginRequest.email).findFirst();
+    final user = await isar.users.where().emailEqualTo(loginRequest.email).findFirst();
 
     if (user == null) {
       return null;
@@ -42,7 +40,7 @@ class LoginSession_ {
     }
 
     // Check if user has EMAIL_VERIFIED trait
-    if (!traitService.hasTrait(user, Trait.EMAIL_VERIFIED)) {
+    if (!user.hasTrait(Trait.EMAIL_VERIFIED)) {
       // Check if user still has valid verify token
       final userVerify = await isar.userVerifys
           .filter()
@@ -68,7 +66,7 @@ class LoginSession_ {
       throw EmailNotVerifiedException();
     }
 
-    if (traitService.hasTrait(user, Trait.SUSPENDED)) {
+    if (user.hasTrait(Trait.SUSPENDED)) {
       throw UserSuspendedException();
     }
 

@@ -3,12 +3,12 @@ import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 import 'package:palspace_backend/enums/email_template.dart';
 import 'package:palspace_backend/models/user/user.dart';
+import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/utilities/utilities.dart';
 
 class MailService {
-  final DotEnv env;
-
-  MailService(this.env) {
+  MailService() {
+    final env = serviceCollection.get<DotEnv>();
     print(
         "Mail service initialized: ${env["SMTP_HOST"]!}:${env["SMTP_PORT"]!} SSL: ${env["SMTP_SSL"]!.toUpperCase()}");
   }
@@ -32,6 +32,7 @@ class MailService {
 
   Future<SendReport?> _sendMail(
       String recipient, String title, String html) async {
+    final env = serviceCollection.get<DotEnv>();
     SmtpServer options;
     if (env["DEBUG"] == "TRUE") {
       options = SmtpServer(env["SMTP_HOST"]!,

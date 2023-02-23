@@ -4,11 +4,12 @@ import 'package:darq/darq.dart';
 import 'package:isar/isar.dart';
 import 'package:palspace_backend/enums/email_template.dart';
 import 'package:palspace_backend/enums/verify_reason.dart';
+import 'package:palspace_backend/helpers/user/user.helpers.dart';
 import 'package:palspace_backend/models/login/session.dart';
 import 'package:palspace_backend/models/user/user.dart';
 import 'package:palspace_backend/models/user/user_trait.dart';
 import 'package:palspace_backend/models/user/user_verify.dart';
-import 'package:palspace_backend/models/user/user_verify.helpers.dart';
+import 'package:palspace_backend/helpers/user/user_verify.helpers.dart';
 import 'package:palspace_backend/models/user/user_viewed_by.dart';
 import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/services/mail_service.dart';
@@ -47,7 +48,7 @@ class UserManagementRouter {
     });
 
     router.get('/sessions', (Request request) async {
-      final user = await RequestUtils.userFromRequest(request);
+      final user = await User_.fromRequest(request);
       final sessions = user.loginSessions.map((s) => {'ipAddress': s.ipAddress, 'userAgent': s.userAgent, 'expiresAt': s.expiresAt!.toIso8601String()});
       return Response(200,
           body: json.encode(sessions.toList()),
@@ -55,14 +56,14 @@ class UserManagementRouter {
     });
 
     router.get('/traits', (Request request) async {
-      final user = await RequestUtils.userFromRequest(request);
+      final user = await User_.fromRequest(request);
       return Response(200,
           body: json.encode(user.traits.toList()),
           headers: {'Content-Type': 'application/json'});
     });
 
     router.get('/delete', (Request request) async {
-      final user = await RequestUtils.userFromRequest(request);
+      final user = await User_.fromRequest(request);
 
       // Create a deletion verify token and store it
       final token = await UserVerify_.generateToken(user, VerifyReason.DELETE_VERIFY, tokenLength: 16);
@@ -80,7 +81,7 @@ class UserManagementRouter {
     router.delete('/verify-delete', (Request request) async {
       final token = request.url.queryParameters['t'];
       final isar = serviceCollection.get<Isar>();
-      final user = await RequestUtils.userFromRequest(request);
+      final user = await User_.fromRequest(request);
       final userVerify = await isar.userVerifys.filter().tokenEqualTo(token).reasonEqualTo(VerifyReason.DELETE_VERIFY.name).findFirst();
 
       if (userVerify == null) {

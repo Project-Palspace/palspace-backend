@@ -8,7 +8,6 @@ import 'package:palspace_backend/models/user/user_verify.dart';
 import 'package:palspace_backend/models/user/user_viewed_by.dart';
 import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/services/mail_service.dart';
-import 'package:palspace_backend/services/user_trait_service.dart';
 
 final _schemas = List<CollectionSchema<dynamic>>.empty(growable: true);
 final _apiController = ApiService();
@@ -24,9 +23,11 @@ void main() async {
   ]);
 
   // Initialize services
-  final traitService = UserTraitService();
   final env = DotEnv(includePlatformEnvironment: true)..load();
-  final mailService = MailService(env);
+
+  serviceCollection.add(env);
+
+  final mailService = MailService();
   final isar = await Isar.open(_schemas);
   final minio = Minio(
       endPoint: env['OBJ_HOST']!,
@@ -35,7 +36,7 @@ void main() async {
       secretKey: env['OBJ_SECRET']!,
       useSSL: env['OBJ_SSL']! == "TRUE");
 
-  serviceCollection.addAll([minio, env, isar, mailService, traitService]);
+  serviceCollection.addAll([minio, isar, mailService]);
 
   // Start api server
   await _apiController.startApi();

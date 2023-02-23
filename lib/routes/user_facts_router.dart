@@ -3,13 +3,14 @@ import 'dart:convert';
 import 'package:isar/isar.dart';
 import 'package:palspace_backend/enums/email_template.dart';
 import 'package:palspace_backend/enums/trait.dart';
+import 'package:palspace_backend/helpers/user/user.helpers.dart';
+import 'package:palspace_backend/helpers/user/user.trait-helpers.dart';
 import 'package:palspace_backend/models/user/user.dart';
 import 'package:palspace_backend/models/user/user_facts.dart';
 import 'package:palspace_backend/models/user/user_trait.dart';
 import 'package:palspace_backend/routes/models/user_facts_request.dart';
 import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/services/mail_service.dart';
-import 'package:palspace_backend/services/user_trait_service.dart';
 import 'package:palspace_backend/utilities/request_utils.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
@@ -19,7 +20,7 @@ class UserFactsRouter {
     final router = Router();
 
     router.put('/', (Request request) async {
-      final user = await RequestUtils.userFromRequest(request);
+      final user = await User_.fromRequest(request);
       final isar = serviceCollection.get<Isar>();
 
       if (user.facts != null) {
@@ -37,8 +38,7 @@ class UserFactsRouter {
         ..birthDate = body.birthDate;
 
       // Mark account that it's facts have been filled so it's allowed to make posts.
-      final traitService = serviceCollection.get<UserTraitService>();
-      traitService.addTrait(user, Trait.ACCOUNT_FACTS_FILLED);
+      user.addTrait(Trait.ACCOUNT_FACTS_FILLED);
 
       await isar.writeTxn(() async {
         await user.traits.save();
@@ -52,11 +52,10 @@ class UserFactsRouter {
     });
 
     router.post('/', (Request request) async {
-      final user = await RequestUtils.userFromRequest(request);
+      final user = await User_.fromRequest(request);
       final isar = serviceCollection.get<Isar>();
-      final traitService = serviceCollection.get<UserTraitService>();
 
-      if (traitService.hasTrait(user, Trait.ACCOUNT_FACTS_LOCKED)) {
+      if (user.hasTrait(Trait.ACCOUNT_FACTS_LOCKED)) {
         return Response.forbidden(json.encode({
           'error': 'Account details locked',
         }));

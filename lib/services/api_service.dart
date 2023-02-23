@@ -3,6 +3,7 @@ import 'package:dotenv/dotenv.dart';
 import 'package:palspace_backend/enums/trait.dart';
 import 'package:palspace_backend/middleware/authentication.dart';
 import 'package:palspace_backend/middleware/bad_request_handler.dart';
+import 'package:palspace_backend/middleware/logger.dart';
 import 'package:palspace_backend/middleware/route_not_found_handler.dart';
 import 'package:palspace_backend/routes/debug_router.dart';
 import 'package:palspace_backend/routes/posts_router.dart';
@@ -23,6 +24,7 @@ class ApiService {
     final pipeline = Pipeline()
         .addMiddleware(routeNotFoundHandler())
         .addMiddleware(badRequestHandler())
+        .addMiddleware(loggingHandler())
         .addHandler(app.call);
 
     final dotEnv = serviceCollection.get<DotEnv>();

@@ -14,7 +14,7 @@ import 'package:palspace_backend/helpers/user/user_verify.helpers.dart';
 import 'package:palspace_backend/models/user/user_viewed_by.dart';
 import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/services/mail_service.dart';
-import 'package:palspace_backend/utilities/utilities.dart';
+import 'package:palspace_backend/utilities/string_extension.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
@@ -71,7 +71,7 @@ class UserManagementRouter {
       // Send email to user to verify request of account deletion
       final mailService = serviceCollection.get<MailService>();
       await mailService.sendTemplateMail(user, EmailTemplate.verifyAccountDeletion, replacements: {
-        'tokenPretty': Utilities.insertDashes(token.token!),
+        'tokenPretty': token.token!.convertCamelCaseToReadable,
         'token': '${token.token?.substring(0, 5)}-${token.token?.substring(5)}',
       });
 

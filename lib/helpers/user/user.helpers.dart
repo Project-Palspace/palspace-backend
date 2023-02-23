@@ -20,7 +20,7 @@ import 'package:palspace_backend/models/user/user_viewed_by.dart';
 import 'package:palspace_backend/routes/models/register_request.dart';
 import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/services/mail_service.dart';
-import 'package:palspace_backend/utilities/utilities.dart';
+import 'package:palspace_backend/utilities/string_extension.dart';
 import 'package:shelf/shelf.dart';
 
 // ignore: camel_case_types
@@ -94,7 +94,7 @@ class User_ {
     final mailService = serviceCollection.get<MailService>();
     await mailService.sendTemplateMail(finalUser, EmailTemplate.verifyEmail, replacements: {
       'token': token.token,
-      'tokenPretty': Utilities.insertDashes(token.token!),
+      'tokenPretty': token.token!.insertDashes,
     });
   }
 

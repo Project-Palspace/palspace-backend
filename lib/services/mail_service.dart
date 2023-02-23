@@ -4,7 +4,7 @@ import 'package:mailer/smtp_server.dart';
 import 'package:palspace_backend/enums/email_template.dart';
 import 'package:palspace_backend/models/user/user.dart';
 import 'package:palspace_backend/services/api_service.dart';
-import 'package:palspace_backend/utilities/utilities.dart';
+import 'package:palspace_backend/utilities/string_extension.dart';
 
 class MailService {
   // TODO: Maybe make a scheduler to send mails?
@@ -21,7 +21,7 @@ class MailService {
 
     // Load template from file
     final html = await template.loadAndReplace(finalReplacements);
-    return _sendMail(user.email!, Utilities.convertCamelCaseToReadable(template.name), html);
+    return _sendMail(user.email!, template.name.convertCamelCaseToReadable, html);
   }
 
   Future<SendReport?> _sendMail(

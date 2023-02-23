@@ -6,23 +6,20 @@ import 'package:image/image.dart' as img;
 import 'package:isar/isar.dart';
 import 'package:minio_new/minio.dart';
 import 'package:palspace_backend/models/user/user.dart';
+import 'package:palspace_backend/models/user/user.helpers.dart';
 import 'package:palspace_backend/models/user/user_details.dart';
 import 'package:palspace_backend/routes/models/user_details.dart';
-import 'package:palspace_backend/services/service_collection.dart';
+import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/utilities/request_utils.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 class UserDetailsRouter {
-  ServiceCollection serviceCollection;
-
-  UserDetailsRouter(this.serviceCollection);
-
   Router get router {
     final router = Router();
 
     router.get('/', (Request request) async {
-      final user = await RequestUtils.userFromRequest(request, serviceCollection: serviceCollection);
+      final user = await RequestUtils.userFromRequest(request);
       return Response.ok(json.encode(await user.toJsonAsync()));
     });
 
@@ -82,8 +79,6 @@ class UserDetailsRouter {
       if (subject == null) {
         return Response.notFound('No user found with username $username');
       }
-
-      subject.populateServiceCollection(serviceCollection);
 
       // If the viewer is not the subject, mark the subject as viewed by the viewer
       if (subject.id != viewer.id) {

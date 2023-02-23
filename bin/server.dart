@@ -8,12 +8,10 @@ import 'package:palspace_backend/models/user/user_verify.dart';
 import 'package:palspace_backend/models/user/user_viewed_by.dart';
 import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/services/mail_service.dart';
-import 'package:palspace_backend/services/service_collection.dart';
 import 'package:palspace_backend/services/user_trait_service.dart';
 
-final _serviceCollection = ServiceCollection();
 final _schemas = List<CollectionSchema<dynamic>>.empty(growable: true);
-final _apiController = ApiService(_serviceCollection);
+final _apiController = ApiService();
 
 void main() async {
   // Define schemas
@@ -26,7 +24,7 @@ void main() async {
   ]);
 
   // Initialize services
-  final traitService = UserTraitService(_serviceCollection);
+  final traitService = UserTraitService();
   final env = DotEnv(includePlatformEnvironment: true)..load();
   final mailService = MailService(env);
   final isar = await Isar.open(_schemas);
@@ -37,7 +35,7 @@ void main() async {
       secretKey: env['OBJ_SECRET']!,
       useSSL: env['OBJ_SSL']! == "TRUE");
 
-  _serviceCollection.addAll([minio, env, isar, mailService, traitService]);
+  serviceCollection.addAll([minio, env, isar, mailService, traitService]);
 
   // Start api server
   await _apiController.startApi();

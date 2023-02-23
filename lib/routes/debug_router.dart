@@ -4,17 +4,13 @@ import 'package:palspace_backend/enums/trait.dart';
 import 'package:palspace_backend/exceptions/missing_trait_exception.dart';
 import 'package:palspace_backend/exceptions/unexpected_trait_exception.dart';
 import 'package:palspace_backend/models/login/session.dart';
-import 'package:palspace_backend/services/service_collection.dart';
+import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/services/user_trait_service.dart';
 import 'package:palspace_backend/utilities/request_utils.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 class DebugRouter {
-  ServiceCollection serviceCollection;
-
-  DebugRouter(this.serviceCollection);
-
   Router get router {
     final router = Router();
 

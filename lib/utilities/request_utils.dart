@@ -6,7 +6,6 @@ import 'package:palspace_backend/routes/models/login_request.dart';
 import 'package:palspace_backend/routes/models/register_request.dart';
 import 'package:palspace_backend/routes/models/user_details.dart';
 import 'package:palspace_backend/routes/models/user_facts_request.dart';
-import 'package:palspace_backend/services/service_collection.dart';
 import 'package:shelf/shelf.dart';
 
 class RequestUtils {
@@ -17,15 +16,13 @@ class RequestUtils {
     return body;
   }
 
-  static Future<User> userFromRequest(Request request,
-      {ServiceCollection? serviceCollection}) async {
+  static Future<User> userFromRequest(Request request) async {
     final session = request.context['session'] as LoginSession;
 
     if (session.user.value == null) {
       throw Exception('User not found in session!');
     }
 
-    session.user.value!.populateServiceCollection(serviceCollection);
     return session.user.value!;
   }
 

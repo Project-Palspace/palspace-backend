@@ -7,22 +7,16 @@ import 'package:palspace_backend/models/user/user.dart';
 import 'package:palspace_backend/models/user/user_facts.dart';
 import 'package:palspace_backend/models/user/user_trait.dart';
 import 'package:palspace_backend/routes/models/user_facts_request.dart';
+import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/services/mail_service.dart';
-import 'package:palspace_backend/services/service_collection.dart';
 import 'package:palspace_backend/services/user_trait_service.dart';
 import 'package:palspace_backend/utilities/request_utils.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 class UserFactsRouter {
-  ServiceCollection serviceCollection;
-
-  UserFactsRouter(this.serviceCollection);
-
   Router get router {
     final router = Router();
-
-
 
     router.put('/', (Request request) async {
       final user = await RequestUtils.userFromRequest(request);
@@ -42,6 +36,10 @@ class UserFactsRouter {
         ..nationality = body.nationality
         ..birthDate = body.birthDate;
 
+      // Mark account that it's facts have been filled so it's allowed to make posts.
+      final traitService = serviceCollection.get<UserTraitService>();
+      traitService.addTrait(user, Trait.ACCOUNT_FACTS_FILLED);
+
       await isar.writeTxn(() async {
         await user.traits.save();
         await isar.users.put(user);
@@ -58,7 +56,7 @@ class UserFactsRouter {
       final isar = serviceCollection.get<Isar>();
       final traitService = serviceCollection.get<UserTraitService>();
 
-      if (traitService.hasTrait(user, Trait.ACCOUNT_DETAILS_LOCKED)) {
+      if (traitService.hasTrait(user, Trait.ACCOUNT_FACTS_LOCKED)) {
         return Response.forbidden(json.encode({
           'error': 'Account details locked',
         }));
@@ -78,7 +76,7 @@ class UserFactsRouter {
         ..nationality = body.nationality
         ..birthDate = body.birthDate;
 
-      final trait = UserTrait(userTrait: Trait.ACCOUNT_DETAILS_LOCKED);
+      final trait = UserTrait(userTrait: Trait.ACCOUNT_FACTS_LOCKED);
       user.traits.add(trait);
 
       await isar.writeTxn(() async {

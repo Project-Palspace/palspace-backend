@@ -5,13 +5,10 @@ import 'package:palspace_backend/exceptions/unexpected_trait_exception.dart';
 import 'package:palspace_backend/models/login/session.dart';
 import 'package:palspace_backend/models/user/user.dart';
 import 'package:palspace_backend/models/user/user_trait.dart';
-import 'package:palspace_backend/services/service_collection.dart';
+import 'package:palspace_backend/services/api_service.dart';
 import 'package:darq/darq.dart';
 
 class UserTraitService {
-  final ServiceCollection serviceCollection;
-  UserTraitService(this.serviceCollection);
-
   Future<void> addTrait(User user, Trait trait) async {
     final isar = serviceCollection.get<Isar>();
     final userTrait = UserTrait()

@@ -8,19 +8,16 @@ import 'package:palspace_backend/models/login/session.dart';
 import 'package:palspace_backend/models/user/user.dart';
 import 'package:palspace_backend/models/user/user_trait.dart';
 import 'package:palspace_backend/models/user/user_verify.dart';
+import 'package:palspace_backend/models/user/user_verify.helpers.dart';
 import 'package:palspace_backend/models/user/user_viewed_by.dart';
+import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/services/mail_service.dart';
-import 'package:palspace_backend/services/service_collection.dart';
 import 'package:palspace_backend/utilities/request_utils.dart';
 import 'package:palspace_backend/utilities/utilities.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 class UserManagementRouter {
-  ServiceCollection serviceCollection;
-
-  UserManagementRouter(this.serviceCollection);
-
   Router get router {
     final router = Router();
 
@@ -51,7 +48,7 @@ class UserManagementRouter {
 
     router.get('/sessions', (Request request) async {
       final user = await RequestUtils.userFromRequest(request);
-      final sessions = user.loginSessions.map((s) => {'id': s.id, 'ipAddress': s.ipAddress, 'userAgent': s.userAgent, 'expiresAt': s.expiresAt!.toIso8601String()});
+      final sessions = user.loginSessions.map((s) => {'ipAddress': s.ipAddress, 'userAgent': s.userAgent, 'expiresAt': s.expiresAt!.toIso8601String()});
       return Response(200,
           body: json.encode(sessions.toList()),
           headers: {'Content-Type': 'application/json'});
@@ -68,8 +65,7 @@ class UserManagementRouter {
       final user = await RequestUtils.userFromRequest(request);
 
       // Create a deletion verify token and store it
-      final isar = serviceCollection.get<Isar>();
-      final token = await UserVerify.generateToken(isar, user, VerifyReason.DELETE_VERIFY, tokenLength: 16);
+      final token = await UserVerify_.generateToken(user, VerifyReason.DELETE_VERIFY, tokenLength: 16);
 
       // Send email to user to verify request of account deletion
       final mailService = serviceCollection.get<MailService>();

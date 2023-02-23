@@ -11,27 +11,25 @@ import 'package:palspace_backend/exceptions/password_validation_exception.dart';
 import 'package:palspace_backend/exceptions/user_suspended_exception.dart';
 import 'package:palspace_backend/exceptions/username_taken_exception.dart';
 import 'package:palspace_backend/models/login/session.dart';
+import 'package:palspace_backend/models/login/session.helpers.dart';
 import 'package:palspace_backend/models/user/user.dart';
+import 'package:palspace_backend/models/user/user.helpers.dart';
 import 'package:palspace_backend/models/user/user_trait.dart';
 import 'package:palspace_backend/models/user/user_verify.dart';
 import 'package:palspace_backend/routes/models/register_request.dart';
+import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/services/mail_service.dart';
-import 'package:palspace_backend/services/service_collection.dart';
 import 'package:palspace_backend/utilities/request_utils.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 class UserRouter {
-  ServiceCollection serviceCollection;
-
-  UserRouter(this.serviceCollection);
-
   Router get router {
     final router = Router();
 
     router.post('/login', (Request request) async {
       try {
-        final session = await LoginSession.fromLoginRequest(request, serviceCollection);
+        final session = await LoginSession_.fromLoginRequest(request);
 
         if (session == null) {
           return Response(401, body: json.encode({"error": "invalid-credentials"}),
@@ -56,7 +54,7 @@ class UserRouter {
       final body = await RequestUtils.bodyFromRequest<RegisterRequest>(request);
 
       try {
-        await User.fromRegisterRequest(body, serviceCollection);
+        await User_.fromRegisterRequest(body);
         return Response(201);
       } on EmailTakenException catch (e) {
         return Response(409, body: e.message);
@@ -109,7 +107,7 @@ class UserRouter {
       } else {
         // Create new session for user
         LoginSession session =
-        await LoginSession.fromUser(user, request, serviceCollection);
+        await LoginSession_.fromUser(user, request);
 
         return Response(200,
           body: json.encode(session.toJson()),

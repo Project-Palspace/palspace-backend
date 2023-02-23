@@ -6,12 +6,12 @@ import 'package:palspace_backend/enums/trait.dart';
 import 'package:palspace_backend/exceptions/missing_trait_exception.dart';
 import 'package:palspace_backend/exceptions/unexpected_trait_exception.dart';
 import 'package:palspace_backend/models/login/session.dart';
-import 'package:palspace_backend/services/service_collection.dart';
+import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/services/user_trait_service.dart';
 import 'package:shelf/shelf.dart';
 
 Future<LoginSession?> isValidToken(
-    String token, ServiceCollection serviceCollection) async {
+    String token) async {
   final isar = serviceCollection.get<Isar>();
   final loginSession =
       await isar.loginSessions.filter().tokenEqualTo(token).findFirst();
@@ -28,14 +28,13 @@ Future<LoginSession?> isValidToken(
   return loginSession;
 }
 
-FutureOr<Middleware> authenticateMiddleware(ServiceCollection serviceCollection,
-    {List<Trait> requiredTraits = const [], List<Trait> requiredMissingTraits = const [Trait.SUSPENDED]}) {
+FutureOr<Middleware> authenticateMiddleware({List<Trait> requiredTraits = const [], List<Trait> requiredMissingTraits = const [Trait.SUSPENDED]}) {
   return (Handler innerHandler) {
     return (Request request) async {
       final authHeader = request.headers['Authorization'];
       if (authHeader != null && authHeader.startsWith('Bearer ')) {
         final token = authHeader.substring(7);
-        final session = await isValidToken(token, serviceCollection);
+        final session = await isValidToken(token);
         final userTraitService = serviceCollection.get<UserTraitService>();
 
         if (session != null) {

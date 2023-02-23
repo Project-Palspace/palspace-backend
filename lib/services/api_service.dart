@@ -5,6 +5,7 @@ import 'package:palspace_backend/middleware/authentication.dart';
 import 'package:palspace_backend/middleware/bad_request_handler.dart';
 import 'package:palspace_backend/middleware/route_not_found_handler.dart';
 import 'package:palspace_backend/routes/debug_router.dart';
+import 'package:palspace_backend/routes/posts_router.dart';
 import 'package:palspace_backend/routes/user_details_router.dart';
 import 'package:palspace_backend/routes/user_facts_router.dart';
 import 'package:palspace_backend/routes/user_management_router.dart';
@@ -14,11 +15,9 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_router/shelf_router.dart';
 
+final serviceCollection = ServiceCollection();
+
 class ApiService {
-  ServiceCollection serviceCollection;
-
-  ApiService(this.serviceCollection);
-
   Future startApi() async {
     final app = Router();
     final pipeline = Pipeline()
@@ -28,25 +27,30 @@ class ApiService {
 
     final dotEnv = serviceCollection.get<DotEnv>();
 
-    app.mount('/user/', UserRouter(serviceCollection).router);
+    app.mount('/user/', UserRouter().router);
     app.mount(
         '/user/manage',
         await authenticatedRouter(
-            UserManagementRouter(serviceCollection).router,
+            UserManagementRouter().router,
             requiredTraits: [Trait.EMAIL_VERIFIED]));
     app.mount(
         '/user/details',
         await authenticatedRouter(
-            UserDetailsRouter(serviceCollection).router,
+            UserDetailsRouter().router,
             requiredTraits: [Trait.EMAIL_VERIFIED]));
     app.mount(
         '/user/facts',
         await authenticatedRouter(
-            UserFactsRouter(serviceCollection).router,
+            UserFactsRouter().router,
             requiredTraits: [Trait.EMAIL_VERIFIED]));
+    app.mount(
+        '/posts',
+        await authenticatedRouter(
+            PostsRouter().router,
+            requiredTraits: [Trait.EMAIL_VERIFIED, Trait.ACCOUNT_FACTS_FILLED]));
     app.mount('/debug/',
-        await authenticatedRouter(DebugRouter(serviceCollection).router));
-    app.mount('/debug-noauth/', DebugRouter(serviceCollection).router);
+        await authenticatedRouter(DebugRouter().router));
+    app.mount('/debug-noauth/', DebugRouter().router);
 
     final server = await io.serve(
         pipeline, dotEnv['HTTP_HOST']!, int.parse(dotEnv['HTTP_PORT']!));
@@ -56,8 +60,7 @@ class ApiService {
   authenticatedRouter(Router router,
           {List<Trait> requiredTraits = const [], List<Trait> requiredMissingTraits = const [ Trait.SUSPENDED]}) async =>
       Pipeline()
-          .addMiddleware(await authenticateMiddleware(serviceCollection,
-              requiredTraits: requiredTraits, requiredMissingTraits: requiredMissingTraits))
+          .addMiddleware(await authenticateMiddleware(requiredTraits: requiredTraits, requiredMissingTraits: requiredMissingTraits))
           .addHandler(router);
 }
 

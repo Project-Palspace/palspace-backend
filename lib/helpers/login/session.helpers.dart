@@ -73,28 +73,8 @@ class LoginSession_ {
       throw UserSuspendedException();
     }
 
-    final ipAddress =
-        (request.context['shelf.io.connection_info'] as HttpConnectionInfo)
-            .remoteAddress
-            .address;
-    final userAgent =
-        request.headers['user-agent'] ?? request.headers['User-Agent'];
-    final session = LoginSession()
-      ..userAgent = userAgent
-      ..ipAddress = ipAddress
-      ..token = Utilities.generateRandomString(128)
-      ..refreshToken = Utilities.generateRandomString(128)
-      ..expiresAt = DateTime.now().add(Duration(hours: 1))
-      ..refreshExpiresAt = DateTime.now().add(Duration(days: 30))
-      ..user.value = user;
-
-    user.loginSessions.add(session);
-
-    await isar.writeTxn(() async {
-      await isar.loginSessions.put(session);
-      await user.loginSessions.save();
-    });
-
+    final session = await LoginSession_.fromUser(user, request);
+    final sessionAgain = await isar.loginSessions.filter().tokenEqualTo(session.token).findFirst();
     return session;
   }
 
@@ -113,7 +93,7 @@ class LoginSession_ {
     });
   }
 
-  static fromUser(User user, Request? request) {
+  static Future<LoginSession> fromUser(User user, Request? request) async {
     final ipAddress =
         ((request?.context['shelf.io.connection_info'] as HttpConnectionInfo)
             .remoteAddress
@@ -131,10 +111,11 @@ class LoginSession_ {
       ..user.value = user;
 
     user.loginSessions.add(session);
+    session.user.value = user;
 
     // Insert into database
     final isar = serviceCollection.get<Isar>();
-    isar.writeTxn(() async {
+    await isar.writeTxn(() async {
       await isar.loginSessions.put(session);
       await user.loginSessions.save();
     });

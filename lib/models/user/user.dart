@@ -41,6 +41,7 @@ class User {
 
   dynamic toJson() {
     return {
+      'id': id,
       'username': username,
       'email': email,
       'details': details?.toJson(),

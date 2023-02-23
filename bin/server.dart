@@ -28,7 +28,7 @@ void main() async {
   serviceCollection.add(env);
 
   final mailService = MailService();
-  final isar = await Isar.open(_schemas);
+  final isar = await Isar.open(_schemas, directory: env['ISAR_DIRECTORY']);
   final minio = Minio(
       endPoint: env['OBJ_HOST']!,
       port: int.parse(env['OBJ_PORT']!),
@@ -36,6 +36,7 @@ void main() async {
       secretKey: env['OBJ_SECRET']!,
       useSSL: env['OBJ_SSL']! == "TRUE");
 
+  print('Isar data folder: ${isar.directory}');
   serviceCollection.addAll([minio, isar, mailService]);
 
   // Start api server

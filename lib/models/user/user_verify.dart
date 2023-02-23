@@ -15,4 +15,12 @@ class UserVerify {
 
   @Backlink(to: 'verifyTokens')
   final user = IsarLink<User>();
+
+  dynamic toJson() {
+    return {
+      'token': token,
+      'reason': reason,
+      'expiresAt': expiresAt?.toIso8601String()
+    };
+  }
 }

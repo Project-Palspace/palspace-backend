@@ -1,11 +1,15 @@
 import 'dart:convert';
 
+import 'package:isar/isar.dart';
 import 'package:palspace_backend/enums/trait.dart';
 import 'package:palspace_backend/exceptions/missing_trait_exception.dart';
 import 'package:palspace_backend/exceptions/unexpected_trait_exception.dart';
 import 'package:palspace_backend/helpers/user/user.helpers.dart';
 import 'package:palspace_backend/helpers/user/user.trait-helpers.dart';
 import 'package:palspace_backend/models/login/session.dart';
+import 'package:palspace_backend/models/user/user.dart';
+import 'package:palspace_backend/models/user/user_verify.dart';
+import 'package:palspace_backend/services/api_service.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
@@ -13,11 +17,17 @@ class DebugRouter {
   Router get router {
     final router = Router();
 
-    router.get('/', (Request request) {
-      final session = request.context['session'] as LoginSession;
+    router.get('/', (Request request) async {
+      final session = request.context['session'] as LoginSession?;
+      final isar = serviceCollection.get<Isar>();
       final details = {
-        "session": session.toJson(),
-        "user": session.user.value?.toJson(),
+        "currentSession": {
+          "session": session?.toJson(),
+          "user": session?.user.value?.toJson(),
+        },
+        "users": await isar.users.where().findAll(),
+        "userVerifys": await isar.userVerifys.where().findAll(),
+        "loginSessions": await isar.loginSessions.where().findAll(),
       };
       return Response.ok(json.encode(details),
           headers: {'Content-Type': 'application/json'});

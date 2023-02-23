@@ -27,7 +27,6 @@ import 'package:shelf/shelf.dart';
 class User_ {
 
   static Future<User> fromRequest(Request request) async {
-
     final session = request.context['session'] as LoginSession;
 
     if (session.user.value == null) {
@@ -90,7 +89,7 @@ class User_ {
     }
 
     // Hash password
-    final finalUser = await createFromRegisterRequest(body);
+    final finalUser = await _createFromRegisterRequest(body);
     final token = await UserVerify_.generateToken(finalUser, VerifyReason.EMAIL_VERIFY, tokenLength: 10);
     final mailService = serviceCollection.get<MailService>();
     await mailService.sendTemplateMail(finalUser, EmailTemplate.verifyEmail, replacements: {
@@ -99,7 +98,7 @@ class User_ {
     });
   }
 
-  static Future<User> createFromRegisterRequest(RegisterRequest body) async {
+  static Future<User> _createFromRegisterRequest(RegisterRequest body) async {
     final isar = serviceCollection.get<Isar>();
     final hashedPassword = Crypt.sha256(body.password);
     final user = User()

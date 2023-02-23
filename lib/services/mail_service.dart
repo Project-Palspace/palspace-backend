@@ -7,12 +7,6 @@ import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/utilities/utilities.dart';
 
 class MailService {
-  MailService() {
-    final env = serviceCollection.get<DotEnv>();
-    print(
-        "Mail service initialized: ${env["SMTP_HOST"]!}:${env["SMTP_PORT"]!} SSL: ${env["SMTP_SSL"]!.toUpperCase()}");
-  }
-
   // TODO: Maybe make a scheduler to send mails?
 
   Future<SendReport?> sendTemplateMail(User user, EmailTemplate template,

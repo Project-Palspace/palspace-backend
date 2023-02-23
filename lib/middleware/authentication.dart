@@ -10,25 +10,26 @@ import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/services/user_trait_service.dart';
 import 'package:shelf/shelf.dart';
 
-Future<LoginSession?> isValidToken(
-    String token) async {
-  final isar = serviceCollection.get<Isar>();
-  final loginSession =
-      await isar.loginSessions.filter().tokenEqualTo(token).findFirst();
+FutureOr<Middleware> authenticateMiddleware(
+    {List<Trait> requiredTraits = const [],
+    List<Trait> requiredMissingTraits = const [Trait.SUSPENDED]}) {
+  Future<LoginSession?> isValidToken(String token) async {
+    final isar = serviceCollection.get<Isar>();
+    final loginSession =
+        await isar.loginSessions.filter().tokenEqualTo(token).findFirst();
 
-  if (loginSession == null) {
-    return null;
+    if (loginSession == null) {
+      return null;
+    }
+
+    if (loginSession.expiresAt!.millisecondsSinceEpoch <
+        DateTime.now().millisecondsSinceEpoch) {
+      return null;
+    }
+
+    return loginSession;
   }
 
-  if (loginSession.expiresAt!.millisecondsSinceEpoch <
-      DateTime.now().millisecondsSinceEpoch) {
-    return null;
-  }
-
-  return loginSession;
-}
-
-FutureOr<Middleware> authenticateMiddleware({List<Trait> requiredTraits = const [], List<Trait> requiredMissingTraits = const [Trait.SUSPENDED]}) {
   return (Handler innerHandler) {
     return (Request request) async {
       final authHeader = request.headers['Authorization'];
@@ -44,7 +45,8 @@ FutureOr<Middleware> authenticateMiddleware({List<Trait> requiredTraits = const 
             await userTraitService.assertHasTraits(
                 session.user.value!, requiredTraits);
           } on MissingTraitException {
-            return Response.unauthorized(json.encode({"error": 'Invalid or missing Bearer token'}));
+            return Response.unauthorized(
+                json.encode({"error": 'Invalid or missing Bearer token'}));
           }
 
           try {
@@ -52,15 +54,18 @@ FutureOr<Middleware> authenticateMiddleware({List<Trait> requiredTraits = const 
                 session.user.value!, requiredMissingTraits);
           } on UnexpectedTraitException {
             if (requiredMissingTraits.contains(Trait.SUSPENDED)) {
-              return Response.unauthorized(json.encode({"error": 'This account has been suspended.'}));
+              return Response.unauthorized(
+                  json.encode({"error": 'This account has been suspended.'}));
             }
-            return Response.unauthorized(json.encode({"error": 'Invalid or missing Bearer token'}));
+            return Response.unauthorized(
+                json.encode({"error": 'Invalid or missing Bearer token'}));
           }
 
           return innerHandler(updatedRequest);
         }
       }
-      return Response.unauthorized(json.encode({"error": 'Invalid or missing Bearer token'}));
+      return Response.unauthorized(
+          json.encode({"error": 'Invalid or missing Bearer token'}));
     };
   };
 }

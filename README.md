@@ -1,14 +1,14 @@
 # palspace_backend
 
-## Running the Application Locally
+## Running the Application Locally (MacOS/Linux)
 
-To build and start the development instance: 
+1. Build and start the development instance: 
 
 ```
 $ make dev
 ```
 
-To start the development instance if you already have an image of the backend locally: 
+2. Start the development instance if you already have an image of the backend locally: 
 
 ```
 $ make up
@@ -26,6 +26,18 @@ For more details see
 $ make 
 ```
 
+## Running the Application Locally (Windows)
+
+### Prerequisites
+
+1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop)
+2. Install chocolatey (https://chocolatey.org/install)
+3. Install choco packages (make, mkcert, sed)
+```
+$ choco install make mkcert sed
+```
+4. Install [Flutter SDK](https://docs.flutter.dev/get-started/install) or [Dart SDK](https://dart.dev/get-dart)
+5. Run steps 1-2 from the [Running the Application Locally (MacOS/Linux)](#running-the-application-locally-macoslinux) section. (Makefile is adapted to work on Windows)
 
 ### Locally
 

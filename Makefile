@@ -1,8 +1,8 @@
 default: help
 
+
 help:
-	@cat docs/help.txt
-	@sed -n 's/^##//p' ${MAKEFILE_LIST} | column -t -s ':' |  sed -e 's/^/ /'
+	docs/help.sh
 
 build:
 	docs/build.sh
@@ -26,11 +26,7 @@ dev-local:
 	dart run bin/server.dart
 
 set-hosts:
-	echo "127.0.0.1    mail.palspace.dev" | sudo tee -a /etc/hosts
-	echo "127.0.0.1    api.palspace.dev" | sudo tee -a /etc/hosts
-	echo "127.0.0.1    obj.palspace.dev" | sudo tee -a /etc/hosts
-	echo "127.0.0.1    obj-portal.palspace.dev" | sudo tee -a /etc/hosts
-	echo "127.0.0.1    proxy.palspace.dev" | sudo tee -a /etc/hosts
+	docs/hosts.sh
 
 update:
 	make down

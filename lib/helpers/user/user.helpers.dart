@@ -25,7 +25,6 @@ import 'package:shelf/shelf.dart';
 
 // ignore: camel_case_types
 class User_ {
-
   static Future<User> fromRequest(Request request) async {
     final session = request.context['session'] as LoginSession;
 
@@ -36,8 +35,7 @@ class User_ {
     return session.user.value!;
   }
 
-  static Future fromRegisterRequest(
-      RegisterRequest body) async {
+  static Future fromRegisterRequest(RegisterRequest body) async {
     // Check if email is actually an email
     final regex = RegExp(
         r'^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$');
@@ -53,17 +51,23 @@ class User_ {
     }
 
     // Check if the username is taken and attached to a user with the trait, EMAIL_VERIFIED.
-    final user2 = await isar.users.where().usernameEqualTo(body.username).findFirst();
+    final user2 =
+        await isar.users.where().usernameEqualTo(body.username).findFirst();
     if (user2 != null) {
       if (user2.hasTrait(Trait.EMAIL_VERIFIED)) {
         throw UsernameTakenException(json.encode({"error": "username-in-use"}));
       } else {
         // Check if the user has a verify token that is not expired
-        final userVerify = await isar.userVerifys.filter().reasonEqualTo(VerifyReason.DELETE_VERIFY.name).findFirst();
+        final userVerify = await isar.userVerifys
+            .filter()
+            .reasonEqualTo(VerifyReason.DELETE_VERIFY.name)
+            .findFirst();
 
-        if (userVerify != null && userVerify.reason == VerifyReason.EMAIL_VERIFY.name) {
+        if (userVerify != null &&
+            userVerify.reason == VerifyReason.EMAIL_VERIFY.name) {
           if (userVerify.expiresAt!.isAfter(DateTime.now())) {
-            throw UsernameTakenException(json.encode({"error": "username-in-use"}));
+            throw UsernameTakenException(
+                json.encode({"error": "username-in-use"}));
           }
         }
 
@@ -84,15 +88,18 @@ class User_ {
       throw PasswordValidationException(json.encode({
         "error": "password-invalid",
         "message":
-        "Password must be at least 8 characters long and contain at least a digit and a letter."
+            "Password must be at least 8 characters long and contain at least a digit and a letter."
       }));
     }
 
     // Hash password
     final finalUser = await _createFromRegisterRequest(body);
-    final token = await UserVerify_.generateToken(finalUser, VerifyReason.EMAIL_VERIFY, tokenLength: 10);
+    final token = await UserVerify_.generateToken(
+        finalUser, VerifyReason.EMAIL_VERIFY,
+        tokenLength: 10);
     final mailService = serviceCollection.get<MailService>();
-    await mailService.sendTemplateMail(finalUser, EmailTemplate.verifyEmail, replacements: {
+    await mailService
+        .sendTemplateMail(finalUser, EmailTemplate.verifyEmail, replacements: {
       'token': token.token,
       'tokenPretty': token.token!.insertDashes,
     });

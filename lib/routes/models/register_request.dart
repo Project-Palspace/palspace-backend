@@ -17,5 +17,6 @@ class RegisterRequest with _$RegisterRequest {
       _$RegisterRequestFromJson(json);
 
   //TODO: Can we instead extend the class from a general RequestBody class with this function in it?
-  static Future<RegisterRequest> fromRequest(Request request) async => RequestUtils.bodyFromRequest<RegisterRequest>(request);
+  static Future<RegisterRequest> fromRequest(Request request) async =>
+      RequestUtils.bodyFromRequest<RegisterRequest>(request);
 }

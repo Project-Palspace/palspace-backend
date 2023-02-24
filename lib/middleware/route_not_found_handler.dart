@@ -10,9 +10,9 @@ Middleware routeNotFoundHandler() {
         final jsonResponse = {'error': body};
 
         if (body.isNotEmpty) {
-          return Response.notFound(jsonEncode(jsonResponse), headers: {'Content-Type': 'application/json'});
-        }
-        else {
+          return Response.notFound(jsonEncode(jsonResponse),
+              headers: {'Content-Type': 'application/json'});
+        } else {
           return Response(404);
         }
       }

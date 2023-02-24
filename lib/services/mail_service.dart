@@ -21,7 +21,8 @@ class MailService {
 
     // Load template from file
     final html = await template.loadAndReplace(finalReplacements);
-    return _sendMail(user.email!, template.name.convertCamelCaseToReadable, html);
+    return _sendMail(
+        user.email!, template.name.convertCamelCaseToReadable, html);
   }
 
   Future<SendReport?> _sendMail(

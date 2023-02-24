@@ -37,8 +37,10 @@ void main() async {
       useSSL: env['OBJ_SSL']! == "TRUE");
 
   print('Isar service initialized: ${isar.directory}');
-  print("Mail service initialized: ${env["SMTP_HOST"]!}:${env["SMTP_PORT"]!} SSL: ${env["SMTP_SSL"]!.toUpperCase()}");
-  print('Minio service initialized: ${env['OBJ_HOST']!}:${env['OBJ_PORT']!} SSL: ${env['OBJ_SSL']!}');
+  print(
+      "Mail service initialized: ${env["SMTP_HOST"]!}:${env["SMTP_PORT"]!} SSL: ${env["SMTP_SSL"]!.toUpperCase()}");
+  print(
+      'Minio service initialized: ${env['OBJ_HOST']!}:${env['OBJ_PORT']!} SSL: ${env['OBJ_SSL']!}');
 
   serviceCollection.addAll([minio, isar, mailService]);
 

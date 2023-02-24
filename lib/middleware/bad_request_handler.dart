@@ -6,12 +6,12 @@ Middleware badRequestHandler() {
       final response = await innerHandler(request);
       if (response.statusCode == 400) {
         final body = await response.readAsString();
-        final jsonResponse = body ;
+        final jsonResponse = body;
 
         if (body.isNotEmpty) {
-          return Response.notFound(jsonResponse, headers: {'Content-Type': 'application/json'});
-        }
-        else {
+          return Response.notFound(jsonResponse,
+              headers: {'Content-Type': 'application/json'});
+        } else {
           return Response(400);
         }
       }

@@ -1,6 +1,12 @@
 import 'dart:io';
 
-enum EmailTemplate { welcome, resetPassword, verifyEmail, verifyAccountDeletion, emailVerified }
+enum EmailTemplate {
+  welcome,
+  resetPassword,
+  verifyEmail,
+  verifyAccountDeletion,
+  emailVerified
+}
 
 extension EmailTemplateEx on EmailTemplate {
   String get name => toString().split('.').last;

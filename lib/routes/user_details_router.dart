@@ -45,26 +45,33 @@ class UserDetailsRouter {
 
       // Read the image from the request
       final contentType = request.headers['content-type'];
-      if (contentType == null || !contentType.toLowerCase().startsWith('image/jpeg')) {
-        return Response.badRequest(body: 'Invalid image type, only JPEG is supported.');
+      if (contentType == null ||
+          !contentType.toLowerCase().startsWith('image/jpeg')) {
+        return Response.badRequest(
+            body: 'Invalid image type, only JPEG is supported.');
       }
 
-      final bodyBytes = Uint8List.fromList(await request.read().expand((x) => x).toList());
+      final bodyBytes =
+          Uint8List.fromList(await request.read().expand((x) => x).toList());
       final image = Stream.value(bodyBytes);
 
       // Check that the data is a valid JPEG image
       try {
         final imageObj = img.decodeJpg(bodyBytes);
         if (imageObj == null) {
-          return Response.badRequest(body: 'Invalid image format, only JPEG is supported.');
+          return Response.badRequest(
+              body: 'Invalid image format, only JPEG is supported.');
         }
       } on img.ImageException {
-        return Response.badRequest(body: 'Invalid image format, only JPEG is supported.');
+        return Response.badRequest(
+            body: 'Invalid image format, only JPEG is supported.');
       }
 
       // Upload the image to Minio
       final env = serviceCollection.get<DotEnv>();
-      await minio.putObject(env['PROFILE_PICTURES_BUCKET']!, '${user.id}.jpg', image, size: bodyBytes.length);
+      await minio.putObject(
+          env['PROFILE_PICTURES_BUCKET']!, '${user.id}.jpg', image,
+          size: bodyBytes.length);
 
       return Response(204);
     });
@@ -72,7 +79,8 @@ class UserDetailsRouter {
     router.get('/<username>', (Request request, String username) async {
       // Get user based on username
       final isar = serviceCollection.get<Isar>();
-      final subject = isar.users.where().usernameEqualTo(username).findFirstSync();
+      final subject =
+          isar.users.where().usernameEqualTo(username).findFirstSync();
       final viewer = await User_.fromRequest(request);
 
       if (subject == null) {

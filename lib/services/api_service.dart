@@ -1,4 +1,3 @@
-
 import 'package:dotenv/dotenv.dart';
 import 'package:palspace_backend/enums/trait.dart';
 import 'package:palspace_backend/middleware/authentication.dart';
@@ -32,26 +31,23 @@ class ApiService {
     app.mount('/user/', UserRouter().router);
     app.mount(
         '/user/manage',
-        await authenticatedRouter(
-            UserManagementRouter().router,
+        await authenticatedRouter(UserManagementRouter().router,
             requiredTraits: [Trait.EMAIL_VERIFIED]));
     app.mount(
         '/user/details',
-        await authenticatedRouter(
-            UserDetailsRouter().router,
+        await authenticatedRouter(UserDetailsRouter().router,
             requiredTraits: [Trait.EMAIL_VERIFIED]));
     app.mount(
         '/user/facts',
-        await authenticatedRouter(
-            UserFactsRouter().router,
+        await authenticatedRouter(UserFactsRouter().router,
             requiredTraits: [Trait.EMAIL_VERIFIED]));
     app.mount(
         '/posts',
-        await authenticatedRouter(
-            PostsRouter().router,
-            requiredTraits: [Trait.EMAIL_VERIFIED, Trait.ACCOUNT_FACTS_FILLED]));
-    app.mount('/debug/',
-        await authenticatedRouter(DebugRouter().router));
+        await authenticatedRouter(PostsRouter().router, requiredTraits: [
+          Trait.EMAIL_VERIFIED,
+          Trait.ACCOUNT_FACTS_FILLED
+        ]));
+    app.mount('/debug/', await authenticatedRouter(DebugRouter().router));
     app.mount('/debug-noauth/', DebugRouter().router);
 
     final server = await io.serve(
@@ -60,9 +56,12 @@ class ApiService {
   }
 
   authenticatedRouter(Router router,
-          {List<Trait> requiredTraits = const [], List<Trait> requiredMissingTraits = const [ Trait.SUSPENDED]}) async =>
+          {List<Trait> requiredTraits = const [],
+          List<Trait> requiredMissingTraits = const [Trait.SUSPENDED]}) async =>
       Pipeline()
-          .addMiddleware(await authenticateMiddleware(requiredTraits: requiredTraits, requiredMissingTraits: requiredMissingTraits))
+          .addMiddleware(await authenticateMiddleware(
+              requiredTraits: requiredTraits,
+              requiredMissingTraits: requiredMissingTraits))
           .addHandler(router);
 }
 

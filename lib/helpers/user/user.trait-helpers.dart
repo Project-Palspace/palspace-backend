@@ -44,10 +44,8 @@ extension UserTraitEx on User {
 
   Future assertHasTraits(List<Trait> traits) async {
     final isar = serviceCollection.get<Isar>();
-    final userTraits = await isar.userTraits
-        .filter()
-        .user((q) => q.idEqualTo(id))
-        .findAll();
+    final userTraits =
+        await isar.userTraits.filter().user((q) => q.idEqualTo(id)).findAll();
     final userTraitValues = userTraits.map((e) => e.trait).toList();
     for (final trait in traits) {
       if (!userTraitValues.contains(trait.name)) {
@@ -58,10 +56,8 @@ extension UserTraitEx on User {
 
   Future assertMissingTraits(List<Trait> traits) async {
     final isar = serviceCollection.get<Isar>();
-    final userTraits = await isar.userTraits
-        .filter()
-        .user((q) => q.idEqualTo(id))
-        .findAll();
+    final userTraits =
+        await isar.userTraits.filter().user((q) => q.idEqualTo(id)).findAll();
     final userTraitValues = userTraits.map((e) => e.trait).toList();
     for (final trait in traits) {
       if (userTraitValues.contains(trait.name)) {
@@ -74,10 +70,11 @@ extension UserTraitEx on User {
   Future suspendUser() async {
     final isar = serviceCollection.get<Isar>();
     final loginSessions = (await isar.loginSessions
-        .filter()
-        .user((q) => q.idEqualTo(id))
-        .findAll()
-    ).select((e, index) => e.id).toList();
+            .filter()
+            .user((q) => q.idEqualTo(id))
+            .findAll())
+        .select((e, index) => e.id)
+        .toList();
 
     // Clear users session tokens
     isar.writeTxn(() async {

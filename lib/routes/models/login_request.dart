@@ -14,5 +14,6 @@ class LoginRequest with _$LoginRequest {
       _$LoginRequestFromJson(json);
 
   //TODO: Can we instead extend the class from a general RequestBody class with this function in it?
-  static Future<LoginRequest> fromRequest(Request request) async => RequestUtils.bodyFromRequest<LoginRequest>(request);
+  static Future<LoginRequest> fromRequest(Request request) async =>
+      RequestUtils.bodyFromRequest<LoginRequest>(request);
 }

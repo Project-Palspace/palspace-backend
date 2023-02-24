@@ -7,7 +7,8 @@ part 'user_facts_request.g.dart';
 
 @freezed
 class UserFactsRequest with _$UserFactsRequest {
-  const factory UserFactsRequest({required String? firstName,
+  const factory UserFactsRequest(
+      {required String? firstName,
       required String? lastName,
       required String? nationality,
       required DateTime? birthDate}) = _UserDetailsRequest;
@@ -16,5 +17,6 @@ class UserFactsRequest with _$UserFactsRequest {
       _$UserFactsRequestFromJson(json);
 
   //TODO: Can we instead extend the class from a general RequestBody class with this function in it?
-  static Future<UserFactsRequest> fromRequest(Request request) async => RequestUtils.bodyFromRequest<UserFactsRequest>(request);
+  static Future<UserFactsRequest> fromRequest(Request request) async =>
+      RequestUtils.bodyFromRequest<UserFactsRequest>(request);
 }

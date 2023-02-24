@@ -31,7 +31,8 @@ class UserRouter {
         final session = await LoginSession_.fromLoginRequest(request);
 
         if (session == null) {
-          return Response(401, body: json.encode({"error": "invalid-credentials"}),
+          return Response(401,
+              body: json.encode({"error": "invalid-credentials"}),
               headers: {'Content-Type': 'application/json'});
         }
 
@@ -70,8 +71,11 @@ class UserRouter {
       final token = request.url.queryParameters['t'];
       final isar = serviceCollection.get<Isar>();
       final userAgent = request.headers['user-agent'];
-      final userVerify =
-          await isar.userVerifys.filter().tokenEqualTo(token).reasonEqualTo(VerifyReason.EMAIL_VERIFY.name).findFirst();
+      final userVerify = await isar.userVerifys
+          .filter()
+          .tokenEqualTo(token)
+          .reasonEqualTo(VerifyReason.EMAIL_VERIFY.name)
+          .findFirst();
 
       if (userVerify == null) {
         return Response(404);
@@ -101,16 +105,16 @@ class UserRouter {
       final mailService = serviceCollection.get<MailService>();
       mailService.sendTemplateMail(user, EmailTemplate.emailVerified);
 
-      if (! userAgent!.contains('Palspace')) {
-        return Response.ok('Your email is now verified, you can now login in the app.');
+      if (!userAgent!.contains('Palspace')) {
+        return Response.ok(
+            'Your email is now verified, you can now login in the app.');
       } else {
         // Create new session for user
-        LoginSession session =
-        await LoginSession_.fromUser(user, request);
+        LoginSession session = await LoginSession_.fromUser(user, request);
 
         return Response(200,
-          body: json.encode(session.toJson()),
-          headers: {'Content-Type': 'application/json'});
+            body: json.encode(session.toJson()),
+            headers: {'Content-Type': 'application/json'});
       }
     });
 

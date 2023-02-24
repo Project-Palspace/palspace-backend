@@ -49,7 +49,11 @@ class UserManagementRouter {
 
     router.get('/sessions', (Request request) async {
       final user = await User_.fromRequest(request);
-      final sessions = user.loginSessions.map((s) => {'ipAddress': s.ipAddress, 'userAgent': s.userAgent, 'expiresAt': s.expiresAt!.toIso8601String()});
+      final sessions = user.loginSessions.map((s) => {
+            'ipAddress': s.ipAddress,
+            'userAgent': s.userAgent,
+            'expiresAt': s.expiresAt!.toIso8601String()
+          });
       return Response(200,
           body: json.encode(sessions.toList()),
           headers: {'Content-Type': 'application/json'});
@@ -66,14 +70,19 @@ class UserManagementRouter {
       final user = await User_.fromRequest(request);
 
       // Create a deletion verify token and store it
-      final token = await UserVerify_.generateToken(user, VerifyReason.DELETE_VERIFY, tokenLength: 16);
+      final token = await UserVerify_.generateToken(
+          user, VerifyReason.DELETE_VERIFY,
+          tokenLength: 16);
 
       // Send email to user to verify request of account deletion
       final mailService = serviceCollection.get<MailService>();
-      await mailService.sendTemplateMail(user, EmailTemplate.verifyAccountDeletion, replacements: {
-        'tokenPretty': token.token!.convertCamelCaseToReadable,
-        'token': '${token.token?.substring(0, 5)}-${token.token?.substring(5)}',
-      });
+      await mailService.sendTemplateMail(
+          user, EmailTemplate.verifyAccountDeletion,
+          replacements: {
+            'tokenPretty': token.token!.convertCamelCaseToReadable,
+            'token':
+                '${token.token?.substring(0, 5)}-${token.token?.substring(5)}',
+          });
 
       return Response(201);
     });
@@ -82,7 +91,11 @@ class UserManagementRouter {
       final token = request.url.queryParameters['t'];
       final isar = serviceCollection.get<Isar>();
       final user = await User_.fromRequest(request);
-      final userVerify = await isar.userVerifys.filter().tokenEqualTo(token).reasonEqualTo(VerifyReason.DELETE_VERIFY.name).findFirst();
+      final userVerify = await isar.userVerifys
+          .filter()
+          .tokenEqualTo(token)
+          .reasonEqualTo(VerifyReason.DELETE_VERIFY.name)
+          .findFirst();
 
       if (userVerify == null) {
         return Response(404);
@@ -122,8 +135,12 @@ class UserManagementRouter {
       });
 
       // Delete all user views
-      final views = await isar.userViews.filter().subject((q) => q.idEqualTo(user.id)).findAll();
-      await isar.writeTxn(() => isar.userViews.deleteAll(views.select((e, index) => e.id).toList()));
+      final views = await isar.userViews
+          .filter()
+          .subject((q) => q.idEqualTo(user.id))
+          .findAll();
+      await isar.writeTxn(() =>
+          isar.userViews.deleteAll(views.select((e, index) => e.id).toList()));
 
       await isar.writeTxn(() => isar.users.delete(user.id));
       return Response(204);

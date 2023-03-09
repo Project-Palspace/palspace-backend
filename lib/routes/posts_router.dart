@@ -11,6 +11,11 @@ class PostsRouter {
       // final user = session.user.value;
     });
 
+    router.post('/', (Request request) async {
+      // final session = await LoginSession_.fromRequest(request);
+      // final user = session.user.value;
+    });
+
     return router;
   }
 }

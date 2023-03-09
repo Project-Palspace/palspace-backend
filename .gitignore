@@ -7,6 +7,7 @@
 .vscode/
 .dart_tool/
 .DS_Store/
+docker/ingress/custom_ssl/npm-1/*
 
 # Docker data folders
 docker/db-data/

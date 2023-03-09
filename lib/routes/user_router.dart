@@ -17,6 +17,7 @@ import 'package:palspace_backend/helpers/user/user.helpers.dart';
 import 'package:palspace_backend/models/user/user_trait.dart';
 import 'package:palspace_backend/models/user/user_verify.dart';
 import 'package:palspace_backend/routes/models/register_request.dart';
+import 'package:palspace_backend/utilities/request_body.dart';
 import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/services/mail_service.dart';
 import 'package:shelf/shelf.dart';
@@ -51,7 +52,7 @@ class UserRouter {
     });
 
     router.post('/register', (Request request) async {
-      final body = await RegisterRequest.fromRequest(request);
+      final body = await RequestBody.fromRequest<RegisterRequest>(request);
 
       try {
         await User_.fromRegisterRequest(body);

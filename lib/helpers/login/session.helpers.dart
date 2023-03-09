@@ -11,6 +11,7 @@ import 'package:palspace_backend/models/user/user.dart';
 import 'package:palspace_backend/models/user/user_verify.dart';
 import 'package:palspace_backend/helpers/user/user_verify.helpers.dart';
 import 'package:palspace_backend/routes/models/login_request.dart';
+import 'package:palspace_backend/utilities/request_body.dart';
 import 'package:palspace_backend/services/api_service.dart';
 import 'package:palspace_backend/services/mail_service.dart';
 import 'package:crypt/crypt.dart';
@@ -28,7 +29,7 @@ class LoginSession_ {
   }
 
   static Future<LoginSession?> fromLoginRequest(Request request) async {
-    final loginRequest = await LoginRequest.fromRequest(request);
+    final loginRequest = await RequestBody.fromRequest<LoginRequest>(request);
     final isar = serviceCollection.get<Isar>();
     final user =
         await isar.users.where().emailEqualTo(loginRequest.email).findFirst();

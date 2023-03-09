@@ -18,6 +18,11 @@ class DebugRouter {
   Router get router {
     final router = Router();
 
+    router.get('/timeout', (Request request) async {
+      //Wait forever
+      await Future.delayed(Duration(days: 1));
+    });
+
     router.get('/', (Request request) async {
       final session = request.context['session'] as LoginSession?;
       final isar = serviceCollection.get<Isar>();

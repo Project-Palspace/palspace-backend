@@ -7,7 +7,7 @@ part 'post.g.dart';
 class Post {
   Id id = Isar.autoIncrement;
 
-  // TODO:  Can we maintain some form of history if changes have been made to this body?
+  // TODO: PRPS-100 Can we maintain some form of history if changes have been made to this body?
 
   String? body;
   String? location;
